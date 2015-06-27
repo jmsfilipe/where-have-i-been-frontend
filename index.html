@@ -1,0 +1,126 @@
+  <!DOCTYPE HTML>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+    <title>Timeline basic demo</title>
+   <!-- <script src="components/vis/moment.min.js"></script>
+    <script src="components/vis/moment-timezone-with-data.min.js"></script> -->
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBCgAlVfAX_nvbOTqWf_tU3UTRXUCFMFcs"></script>
+    <script src="components/vis/js/jquery-2.1.3.min.js"></script>
+    <script src="components/vis/js/bootstrap.min.js"></script>
+    <script src="components/vis/js/jquery.csv-0.71.min.js"></script>
+    <script src="components/vis/js/bootstrap-datepicker.min.js"></script>
+    <script src="components/vis/js/jquery-clockpicker.js"></script>
+    <script src="components/vis/js/moment.min.js"></script>
+    <script src="components/vis/js/jquery.autocomplete.min.js"></script>
+    <script src="components/vis/js/bootstrap-timepicker.js"></script>
+    <script src="components/vis/vis-custom.js"></script>
+    <script src="components/vis/js/sidebar.js"></script>
+    <script src="components/vis/js/jquery-ui.js"></script>
+    <script src="components/vis/js/jscolor.js"></script>
+    
+    <link href="components/vis/css/vis.css" rel="stylesheet" type="text/css" />
+    <link href="components/vis/css/bootstrap.css" rel="stylesheet">
+    <link href="components/vis/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="components/vis/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="components/vis/css/jquery-clockpicker.css" rel="stylesheet">
+    <link href="components/vis/css/bootstrap-timepicker.css" rel="stylesheet">
+    <link href="components/vis/css/header.css" rel="stylesheet">
+    <link href="components/vis/css/results.css" rel="stylesheet">
+    <link href="components/vis/css/map.css" rel="stylesheet">
+    <link href="components/vis/css/sidebar.css" rel="stylesheet">
+    <link href="components/vis/css/jquery-ui.css" rel="stylesheet">
+
+    <style type="text/css">
+      body, html {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+  <div class="ui sidebar">
+  
+  <div id="settingsPanel">
+  <h3>Categories</h3>
+  <table id ='categoriesTable'> </table>
+  <br>
+  <button id='newCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">New</button>
+  <input type="file" name="File Upload" id="importCategoryInput" accept=".csv" style="display:none"/>
+  <button id='importCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Import</button>
+  <button id='exportCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Export</button>
+  <br>
+  <h3>Places</h3>
+  <table id ='placesTable'> </table>
+  <br>
+  <button id='newPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">New</button>
+  <input type="file" name="File Upload" id="importPlaceInput" accept=".csv" style="display:none"/>
+  <button id='importPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Import</button>
+  <button id='exportPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Export</button>
+  <br><br>
+  <button id='saveButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Save</button>
+  </div>
+  </div>
+  <div id='window' class="pusher">
+    <div id ='header'>
+      <div id='title'>WHERE HAVE I BEEN</div>
+      <div id="subtitle">Visualizing Personal Geolocation Data</div>
+      <div id='settings'></div>
+    </div>
+    <div id="visualization"></div>
+    <div id='results'><div id='message'></div></div>
+    <div id='map'></div>
+  </div>
+
+
+
+
+    <script type="text/javascript">
+
+  // DOM element where the Timeline will be attached
+  var container = document.getElementById('visualization');
+  var data = new vis.DataSet([
+    ]);
+
+  // Configuration for the Timeline
+
+  var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+
+if(dd<10) {
+    dd='0'+dd
+} 
+
+if(mm<10) {
+    mm='0'+mm
+} 
+
+today = dd+'/'+mm+'/'+yyyy;
+
+  var options = {editable: true,
+    selectable: true,
+    showCurrentTime: false,
+    type: 'range',
+    end: moment(today +" " + "23:59", "DD/MM/YYYY HH:mm"),
+    start: moment(today +" " + "00:00", "DD/MM/YYYY HH:mm"),
+    stack: 'false',
+    results: false,
+
+
+    margin: {axis: 0, item: 0}
+  };
+
+  // Create a Timeline
+  var timeline = new vis.Timeline(container, data, options);
+
+
+    /*var timeline3 = new vis.Timeline(container2, data2, options2);
+        var timeline4 = new vis.Timeline(container2, data2, options2);
+            var timeline5 = new vis.Timeline(container2, data2, options2);
+                var timeline6 = new vis.Timeline(container2, data2, options2);
+                    var timeline7 = new vis.Timeline(container2, data2, options2);*/
+</script>
+</body>
+</html>

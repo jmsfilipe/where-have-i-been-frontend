@@ -1,0 +1,9 @@
+#map{
+	height: calc(100% - 178px);
+	width: auto;
+	border-top: solid #383838;
+	border-bottom: solid #383838;
+	overflow: hidden;
+}
+
+.modal-backdrop.fade { background-color: rgba(0,0,0,0.5); }

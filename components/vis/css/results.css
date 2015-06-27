@@ -1,0 +1,59 @@
+html,body, #window{
+    margin:0;
+    padding:0;
+    height:100%;
+}
+
+#results{
+
+	height: calc(100% - 178px);
+	width: 70%;
+	border-right: solid #383838;
+	border-top: solid #383838;
+	border-bottom: solid #383838;
+  float: left;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#message{
+  font-size: 40px;
+  letter-spacing: 2.5px;
+  display:inline-block;
+  line-height: 40px;
+  font-weight: bold;
+  height: 40px;
+  margin-left: 20px;
+  color: #D4D4D4;
+  display: table;
+  margin: 0 auto;
+  position: relative;
+  top: 30%;
+  transform: translateY(-30%);
+}
+
+.ui.sidebar h3{
+color: white;
+}
+
+.ui.sidebar p{
+color: white;
+}
+
+#categoriesTable{
+ margin-left: auto;
+    margin-right: auto;
+ border-collapse: separate;
+  border-spacing: 40px 0;
+}
+
+#placesTable{
+ margin-left: auto;
+    margin-right: auto;
+ border-collapse: separate;
+  border-spacing: 40px 0;
+}
+
+#settingsPanel{
+  margin-left: 10px;
+}

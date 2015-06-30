@@ -255,8 +255,7 @@ settings.onclick=function(){$('.ui.sidebar').sidebar('toggle');};
             return;
         });
 
-        var date = moment(first.data.date).format("DD/MM/YYYY")
-        console.log(date)
+        var date = moment(first.data.date).format("DD/MM/YYYY");
         this.body.dom.resultDate.innerHTML = date;
     }
     var options = this.options;

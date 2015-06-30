@@ -154,22 +154,19 @@ Map.prototype.mapView = function(data) {
         strokeWeight: 3
     }
 
-  
-
 for(var key in locations) {
-    if(locations.hasOwnProperty(key)) {
+    if(locations.hasOwnProperty(key) && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }
   
 map.data.setStyle(featureStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key)) {
+    if(trips.hasOwnProperty(key) && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
     }
 }
-console.log("AQUIPLEASE")
-console.log(trips)
+
   if(Object.keys(trips).length == 0){
   map.fitBounds(bounds);
   map.setCenter(bounds.getCenter());}

@@ -1627,15 +1627,17 @@
  			this.colapsableTap = !this.colapsableTap;
  			this.results.selectResult(this.options.moreResultsId, true);
             this.results.sendGlobalMapRequest(this.options.moreResultsId);
+            console.log("FIRST")
  		}
  		else if(this.options.results && !this.options.colapsed && this.colapsableTap){
  				    	this.colapsableTap = !this.colapsableTap;
  				    	this.results.unselectResult(this.options.moreResultsId, false);
+ 				    	console.log("SECOND")
 
  		}
  		else if(this.options.results && this.options.colapsed && item == null){
  			this.colapsedTap = !this.colapsedTap;
- 			console.log("PORRA PA2")
+ 			console.log("THIRD")
 	    	idList = []
 	    	this.itemsData.forEach(function(data) {
 
@@ -1644,11 +1646,11 @@
 
 	    	this.results.sendEntryMapRequest(idList);
  		}else if(this.options.results && item != null && item.data.type === "interval" && this.options.colapsed){
- 			console.log("PORRA PA3")
+ 			console.log("FOURTH")
 	    	this.results.highlightRoute(item.data.trip);
 	    }
 	    else if(this.options.results && item != null && this.options.colapsed && item.data.type === "range"){
-	    	console.log("PORRA PA4")
+	    	console.log("FIFTH")
 	    	this.results.highlightLocation(item.data.trip);
 	    }
 

@@ -263,8 +263,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
         }
     };
 
-    console.log(obj)
-
     var colapsable = true;
     if (obj.length == size) {
         options.colapsed = true;
@@ -275,8 +273,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
     var container = document.getElementById('results');
     var content = [];
     for (i = 0; i < obj.length; i++) {
-        console.log("THIS IS A COLAPSABLEEEE")
-        console.log(obj[i].id + "   " + obj[i].start_date + "   " + obj[i].end_date + "   " + obj[i].moreResultsId)
         content.push({
             id: i,
             type: obj[i].type,
@@ -367,7 +363,6 @@ Results.prototype.showResults = function(id) {
 };
 
 Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delta) {
-    console.log(colapsedResults)
     for (var key in colapsedResults) {
 
         if (parseInt(key) == parseInt(id)) {
@@ -382,9 +377,7 @@ Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delt
 };
 
 Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
-    console.log(colapsedResults)
     for (var key in colapsedResults) {
-        console.log("draggin2222" + key + "   " + id)
         if (parseInt(key) == parseInt(id)) {
 
             var value = colapsedResults[key];
@@ -907,7 +900,6 @@ Results.prototype.saveSettings = function() {
 
 util.categoriesColors = {};
 util.categoriesPlaces = {};
-console.log(nrPlace)
 $('.ui.sidebar').sidebar('toggle');
 
 
@@ -988,8 +980,6 @@ function updateSettings(data){
 
   util.categoriesPlaces = {};
   util.categoriesColors = {};
-
-  console.log(util.categoriesPlaces)
 
   for(i = 0; i < categories.length; i++){
     util.categoriesPlaces[categories[i][0]] = categories[i][1];

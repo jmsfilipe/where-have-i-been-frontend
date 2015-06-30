@@ -3462,17 +3462,18 @@ Map.prototype.mapView = function(data) {
         strokeWeight: 3
     }
 
-  
+  console.log(locations)
+  console.log(trips)
 
 for(var key in locations) {
-    if(locations.hasOwnProperty(key)) {
+    if(locations.hasOwnProperty(key) && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }
   
 map.data.setStyle(featureStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key)) {
+    if(trips.hasOwnProperty(key) && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
     }
 }
@@ -4601,8 +4602,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
         }
     };
 
-    console.log(obj)
-
     var colapsable = true;
     if (obj.length == size) {
         options.colapsed = true;
@@ -4613,8 +4612,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
     var container = document.getElementById('results');
     var content = [];
     for (i = 0; i < obj.length; i++) {
-        console.log("THIS IS A COLAPSABLEEEE")
-        console.log(obj[i].id + "   " + obj[i].start_date + "   " + obj[i].end_date + "   " + obj[i].moreResultsId)
         content.push({
             id: i,
             type: obj[i].type,
@@ -4705,7 +4702,6 @@ Results.prototype.showResults = function(id) {
 };
 
 Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delta) {
-    console.log(colapsedResults)
     for (var key in colapsedResults) {
 
         if (parseInt(key) == parseInt(id)) {
@@ -4720,9 +4716,7 @@ Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delt
 };
 
 Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
-    console.log(colapsedResults)
     for (var key in colapsedResults) {
-        console.log("draggin2222" + key + "   " + id)
         if (parseInt(key) == parseInt(id)) {
 
             var value = colapsedResults[key];
@@ -5245,7 +5239,6 @@ Results.prototype.saveSettings = function() {
 
 util.categoriesColors = {};
 util.categoriesPlaces = {};
-console.log(nrPlace)
 $('.ui.sidebar').sidebar('toggle');
 
 
@@ -5326,8 +5319,6 @@ function updateSettings(data){
 
   util.categoriesPlaces = {};
   util.categoriesColors = {};
-
-  console.log(util.categoriesPlaces)
 
   for(i = 0; i < categories.length; i++){
     util.categoriesPlaces[categories[i][0]] = categories[i][1];
@@ -9223,15 +9214,17 @@ module.exports = Group;
  			this.colapsableTap = !this.colapsableTap;
  			this.results.selectResult(this.options.moreResultsId, true);
             this.results.sendGlobalMapRequest(this.options.moreResultsId);
+            console.log("FIRST")
  		}
  		else if(this.options.results && !this.options.colapsed && this.colapsableTap){
  				    	this.colapsableTap = !this.colapsableTap;
  				    	this.results.unselectResult(this.options.moreResultsId, false);
+ 				    	console.log("SECOND")
 
  		}
  		else if(this.options.results && this.options.colapsed && item == null){
  			this.colapsedTap = !this.colapsedTap;
- 			console.log("PORRA PA2")
+ 			console.log("THIRD")
 	    	idList = []
 	    	this.itemsData.forEach(function(data) {
 
@@ -9240,11 +9233,11 @@ module.exports = Group;
 
 	    	this.results.sendEntryMapRequest(idList);
  		}else if(this.options.results && item != null && item.data.type === "interval" && this.options.colapsed){
- 			console.log("PORRA PA3")
+ 			console.log("FOURTH")
 	    	this.results.highlightRoute(item.data.trip);
 	    }
 	    else if(this.options.results && item != null && this.options.colapsed && item.data.type === "range"){
-	    	console.log("PORRA PA4")
+	    	console.log("FIFTH")
 	    	this.results.highlightLocation(item.data.trip);
 	    }
 
@@ -10100,8 +10093,7 @@ settings.onclick=function(){$('.ui.sidebar').sidebar('toggle');};
             return;
         });
 
-        var date = moment(first.data.date).format("DD/MM/YYYY")
-        console.log(date)
+        var date = moment(first.data.date).format("DD/MM/YYYY");
         this.body.dom.resultDate.innerHTML = date;
     }
     var options = this.options;
@@ -12053,7 +12045,6 @@ RangeItem.prototype._repaintRangeBox = function(anchor) {
             me.data.range = logslider4(logslider3(parseInt(rangeBox.value)));
             if (rangeBox.value.slice(-1) != 'm') rangeBox.value = rangeBox.value + "m";
             me.repositionY(true);
-            console.log(me.data.range)
             if (!util.verifyRange(rangeBox.value)) {
                 rangeBox.value = "0m";
                 me.data.range = 0;
@@ -12714,8 +12705,6 @@ if(this.options.results){
 
     //coloring according to settings
     if(this.options.results){
-        console.log("AQUI E QUE E")
-    console.log(util.placesColors)
     var place = this.dom.resultLocation.innerHTML;
     color = util.placesColors[place];
     this.dom.box.style.backgroundColor = color;

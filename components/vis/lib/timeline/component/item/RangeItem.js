@@ -563,7 +563,6 @@ RangeItem.prototype._repaintRangeBox = function(anchor) {
             me.data.range = logslider4(logslider3(parseInt(rangeBox.value)));
             if (rangeBox.value.slice(-1) != 'm') rangeBox.value = rangeBox.value + "m";
             me.repositionY(true);
-            console.log(me.data.range)
             if (!util.verifyRange(rangeBox.value)) {
                 rangeBox.value = "0m";
                 me.data.range = 0;
@@ -1224,8 +1223,6 @@ if(this.options.results){
 
     //coloring according to settings
     if(this.options.results){
-        console.log("AQUI E QUE E")
-    console.log(util.placesColors)
     var place = this.dom.resultLocation.innerHTML;
     color = util.placesColors[place];
     this.dom.box.style.backgroundColor = color;

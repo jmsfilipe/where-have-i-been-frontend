@@ -151,7 +151,7 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
 
 Results.prototype.globalMapView = function(data) {
 
-    this.map.mapView(data);
+    this.map.globalMapView(data);
 
 };
 
@@ -454,7 +454,7 @@ function uploadCategory(evt) {
                     tr = document.createElement('tr');
                     td = document.createElement('td');
                     text = document.createElement('input');
-                    text.style.width = "60px";
+                    text.style.width = "150px";
                     text.style.border = "0";
                     text.style.background = "transparent";
                     text.style.color = "white";
@@ -508,7 +508,7 @@ Results.prototype.updateLocationSettings = function() {
         ++nrPlace;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -567,7 +567,7 @@ function updateTables() {
         ++nrPlace;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -618,7 +618,7 @@ function updateTables() {
         ++nrCategory;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -663,7 +663,7 @@ function uploadPlace(evt) {
                     tr = document.createElement('tr');
                     td = document.createElement('td');
                     text = document.createElement('input');
-                    text.style.width = "60px";
+                    text.style.width = "150px";
                     text.style.border = "0";
                     text.style.background = "transparent";
                     text.style.color = "white";
@@ -725,7 +725,7 @@ function newCategory() {
     ++nrCategory;
 
     text = document.createElement('input');
-    text.style.width = "60px";
+    text.style.width = "150px";
     text.style.border = "0";
     text.style.background = "transparent";
     text.style.color = "white";
@@ -759,7 +759,7 @@ function newPlace() {
     ++nrPlace;
 
     text = document.createElement('input');
-    text.style.width = "60px";
+    text.style.width = "150px";
     text.style.border = "0";
     text.style.background = "transparent";
     text.style.color = "white";

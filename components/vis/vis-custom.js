@@ -3323,6 +3323,17 @@ var map;
 var markers = {};
 var trips = {};
 var bounds = new google.maps.LatLngBounds();
+var icons = {};
+
+    var selectedStyle = {
+        strokeColor: '#fc6355',
+        strokeWeight: 3
+    }
+        var unselectedStyle = {
+        strokeColor: '#e0e0e0',
+        strokeWeight: 2
+    }
+
 
 function Map() {
 
@@ -3342,6 +3353,16 @@ var range = 0;
             range = event.detail.message;
             
         });
+
+var iconBase = 'http://www.google.com/intl/en_us/mapfiles/ms/micons/';
+icons = {
+  selected: {
+    icon: iconBase + 'red-dot.png'
+  },
+  unselected: {
+    icon: iconBase + 'grey.png'
+  }
+};
 
 
 google.maps.event.addListener(map, "click", function (event) {
@@ -3416,11 +3437,10 @@ function showMarkers() {
 function addMarker(name, data){
     var yourLocation = new google.maps.LatLng(data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]);
 
-              var iconBase = 'http://maps.google.com/mapfiles/ms/icons/';
             var marker = new google.maps.Marker({
                 position: yourLocation,
                 map: map,
-                icon: iconBase + 'red-dot.png'
+                icon: icons["unselected"].icon
             });
             markers[name] = marker;
 
@@ -3439,10 +3459,29 @@ google.maps.event.trigger(map, 'resize');
 
 Map.prototype.highlightLocation = function(id) {
 
+for(var mKey in markers) {
+      if(mKey === id){
+        markers[mKey].icon = icons["selected"].icon;
+      }
+      else{
+         markers[mKey].icon = icons["unselected"].icon;
+      }
+    
+
+}
+  
+showMarkers();
+
+map.setZoom(17);
+map.panTo(markers[id].position);
+
 }
 
 
 Map.prototype.highlightRoute = function(id) {
+
+
+      console.log(map.data)
 
 }
 
@@ -3451,19 +3490,12 @@ Map.prototype.clearAll = function(id) {
     clearMap();
 }
 
-Map.prototype.mapView = function(data) {
+Map.prototype.globalMapView = function(data) {
     clearMarkers();
     clearMap();
 
   var locations = data["locations"];
   var trips = data["trips"];
-    var featureStyle = {
-        strokeColor: '#F74F4F',
-        strokeWeight: 3
-    }
-
-  console.log(locations)
-  console.log(trips)
 
 for(var key in locations) {
     if(locations.hasOwnProperty(key) && locations[key].features != null) {
@@ -3471,14 +3503,13 @@ for(var key in locations) {
     }
 }
   
-map.data.setStyle(featureStyle);
+map.data.setStyle(unselectedStyle);
 for(var key in trips) {
     if(trips.hasOwnProperty(key) && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
     }
 }
-console.log("AQUIPLEASE")
-console.log(trips)
+
   if(Object.keys(trips).length == 0){
   map.fitBounds(bounds);
   map.setCenter(bounds.getCenter());}
@@ -3487,6 +3518,82 @@ else{
 }
 
 }
+
+Map.prototype.mapView = function(data) {
+    clearMarkers();
+    clearMap();
+
+  var locations = data["locations"];
+  var trips = data["trips"];
+
+console.log(locations)
+console.log(trips)
+for(var key in locations) {
+    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+        addMarker(key, locations[key]);
+    }
+}
+
+for(var mKey in markers) {
+    markers[mKey].icon = icons["unselected"].icon;
+    for(var lKey in locations) {
+      if(mKey === lKey){
+        console.log("SELECTED " + mKey)
+        markers[mKey].icon = icons["selected"].icon;
+      }
+    
+}
+}
+
+var noTrips = false;
+map.data.setStyle(selectedStyle);
+for(var key in trips) {
+    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+        map.data.addGeoJson(trips[key]);
+    }
+    else{
+      noTrips = true;
+    }
+}
+
+  if(Object.keys(trips).length == 0 || noTrips){
+  map.fitBounds(bounds);
+  map.setCenter(bounds.getCenter());}
+else{
+  zoom(map);
+}
+
+}
+
+Map.prototype.highlightMapView = function(data) {
+  var locations = data["locations"];
+  var _trips = data["trips"];
+console.log(markers)
+console.log(locations)
+for(var mKey in markers) {
+    markers[mKey].icon = icons["unselected"].icon;
+    for(var lKey in locations) {
+      if(mKey === lKey){
+        console.log("SELECTED " + mKey)
+        markers[mKey].icon = icons["selected"].icon;
+      }
+    
+}
+}
+  
+showMarkers();
+
+
+
+  if(Object.keys(trips).length == 0){
+  map.fitBounds(bounds);
+  map.setCenter(bounds.getCenter());}
+else{
+  zoom(map);
+}
+
+}
+
 
 Map.prototype.loadJson = function(geoString) {
     clearMap();
@@ -4490,7 +4597,7 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
 
 Results.prototype.globalMapView = function(data) {
 
-    this.map.mapView(data);
+    this.map.globalMapView(data);
 
 };
 
@@ -4793,7 +4900,7 @@ function uploadCategory(evt) {
                     tr = document.createElement('tr');
                     td = document.createElement('td');
                     text = document.createElement('input');
-                    text.style.width = "60px";
+                    text.style.width = "150px";
                     text.style.border = "0";
                     text.style.background = "transparent";
                     text.style.color = "white";
@@ -4847,7 +4954,7 @@ Results.prototype.updateLocationSettings = function() {
         ++nrPlace;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -4906,7 +5013,7 @@ function updateTables() {
         ++nrPlace;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -4957,7 +5064,7 @@ function updateTables() {
         ++nrCategory;
 
         text = document.createElement('input');
-        text.style.width = "60px";
+        text.style.width = "150px";
         text.style.border = "0";
         text.style.background = "transparent";
         text.style.color = "white";
@@ -5002,7 +5109,7 @@ function uploadPlace(evt) {
                     tr = document.createElement('tr');
                     td = document.createElement('td');
                     text = document.createElement('input');
-                    text.style.width = "60px";
+                    text.style.width = "150px";
                     text.style.border = "0";
                     text.style.background = "transparent";
                     text.style.color = "white";
@@ -5064,7 +5171,7 @@ function newCategory() {
     ++nrCategory;
 
     text = document.createElement('input');
-    text.style.width = "60px";
+    text.style.width = "150px";
     text.style.border = "0";
     text.style.background = "transparent";
     text.style.color = "white";
@@ -5098,7 +5205,7 @@ function newPlace() {
     ++nrPlace;
 
     text = document.createElement('input');
-    text.style.width = "60px";
+    text.style.width = "150px";
     text.style.border = "0";
     text.style.background = "transparent";
     text.style.color = "white";
@@ -7614,13 +7721,13 @@ module.exports = Group;
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
-		this.results = null;
+	    this.results = null;
 
-		if(options instanceof Results){
-			this.results = options
-		}
-		this.colapsedTap = false;
-		this.colapsableTap = false;
+	    if (options instanceof Results) {
+	        this.results = options
+	    }
+	    this.colapsedTap = false;
+	    this.colapsableTap = false;
 	    this.body = body;
 	    this.expanded = false;
 	    this.defaultOptions = {
@@ -8157,6 +8264,36 @@ module.exports = Group;
 	    // check if this component is resized
 	    resized = this._isResized() || resized;
 
+
+	    if (this.options.results && !this.options.colapsed && this.options.moreResultsId != null && this.itemsData != null) {
+
+	        var prevName = "";
+	        for (itemId in this.items) {
+	            if (this.items.hasOwnProperty(itemId)) {
+	                item = this.items[itemId];
+	                if (prevName!= item.data.trip) {
+	                	if(item.data.type != "interval")
+	                    item.dom.resultLocation.style.zIndex = '100'
+	                } 
+	                else {
+	                	if(item.data.type != "interval")
+	                   item.dom.resultLocation.innerText = "";
+	                }
+	                prevName = item.data.trip;
+
+	                //item.dom.box.style.borderLeft = 'none';
+	                //item.dom.box.style.borderRight = 'none';
+	                //
+	            }
+	        }
+
+	        //this.items[minStartItem.id].dom.box.style.borderLeft = "1px solid #97B0F8";
+	        //this.items[maxEndItem.id].dom.box.style.borderRight = "1px solid #97B0F8";
+	        //this.items[maxEndItem.id].dom.resultLocation = 
+
+
+
+	    }
 
 
 	    return resized;
@@ -8821,8 +8958,8 @@ module.exports = Group;
 	 * @param {Event} event
 	 * @private
 	 */
-	 var prevX = -1;
-	 var prevX1 = -1;
+	var prevX = -1;
+	var prevX1 = -1;
 	ItemSet.prototype._onDrag = function(event) {
 	    var exit = false;
 	    if (createAndDrag || event.target.dragUpItem || event.target.dragDownItem || event.target.dragLeftItem || event.target.dragRightItem || event.target.fuzzyDragLeft || event.target.fuzzyDragRight) {
@@ -8856,12 +8993,12 @@ module.exports = Group;
 	                var dragUpItem = event.target.dragUpItem;
 	                var dragDownItem = event.target.dragDownItem;
 
-	               /* if (dragUpItem) {
-	                    offsetY = window.innerHeight - offsetY;
-	                }
-	                if (dragDownItem) {
-	                    offsetY = offsetY;
-	                }*/
+	                /* if (dragUpItem) {
+	                     offsetY = window.innerHeight - offsetY;
+	                 }
+	                 if (dragDownItem) {
+	                     offsetY = offsetY;
+	                 }*/
 
 
 	                if (dragUpItem) {
@@ -8872,12 +9009,12 @@ module.exports = Group;
 	                    }
 
 	                    if (prevX > event.gesture.center.clientY) {
-	                    	if(offsetY < 0) offsetY = -offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY < 0) offsetY = -offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged up' + -offsetY);
 	                    } else if (prevX < event.gesture.center.clientY) { // dragged down
-	                    	if(offsetY > 0) offsetY = -offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY > 0) offsetY = -offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged down' + offsetY);
 	                    }
 	                    prevX = event.gesture.center.clientY;
@@ -8893,17 +9030,17 @@ module.exports = Group;
 	                    }
 
 	                    if (prevX > event.gesture.center.clientY) {
-	                    	if(offsetY < 0) offsetY = offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY < 0) offsetY = offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged up' + -offsetY);
 	                    } else if (prevX < event.gesture.center.clientY) { // dragged down
-	                    	if(offsetY > 0) offsetY = offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY > 0) offsetY = offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged down' + offsetY);
 	                    }
 	                    prevX = event.gesture.center.clientY;
 
-	
+
 	                }
 
 	                if ('change' in props) {
@@ -9101,7 +9238,7 @@ module.exports = Group;
 	                    me.itemsData.getDataSet().update(rightInterval);
 
 
-	  
+
 
 	                    // only apply changes when start or end is actually changed
 	                    if (changed) {
@@ -9171,8 +9308,8 @@ module.exports = Group;
 
 	        var leftIntervalData = this.itemsData.getDataSet().get(item.data.leftIntervalId);
 	        var rightIntervalData = this.itemsData.getDataSet().get(item.data.rightIntervalId);
-	       // console.log(this.itemsData.getDataSet());
-	       // console.log(item.data.leftIntervalId + " " + item.data.rightIntervalId);
+	        // console.log(this.itemsData.getDataSet());
+	        // console.log(item.data.leftIntervalId + " " + item.data.rightIntervalId);
 	        leftIntervalData.end = rightIntervalData.end;
 	        leftIntervalData.rightItemId = rightIntervalData.rightItemId;
 	        this.itemsData.getDataSet().update(leftIntervalData);
@@ -9210,51 +9347,47 @@ module.exports = Group;
 
 	    var newSelection = this.getSelection();
 
- 		if(this.options.results && !this.options.colapsed && !this.colapsableTap){
- 			this.colapsableTap = !this.colapsableTap;
- 			this.results.selectResult(this.options.moreResultsId, true);
-            this.results.sendGlobalMapRequest(this.options.moreResultsId);
-            console.log("FIRST")
- 		}
- 		else if(this.options.results && !this.options.colapsed && this.colapsableTap){
- 				    	this.colapsableTap = !this.colapsableTap;
- 				    	this.results.unselectResult(this.options.moreResultsId, false);
- 				    	console.log("SECOND")
+	    if (this.options.results && !this.options.colapsed && !this.colapsableTap) {
+	        this.colapsableTap = !this.colapsableTap;
+	        this.results.selectResult(this.options.moreResultsId, true);
+	        this.results.sendGlobalMapRequest(this.options.moreResultsId);
+	        console.log("FIRST")
+	    } else if (this.options.results && !this.options.colapsed && this.colapsableTap) {
+	        this.colapsableTap = !this.colapsableTap;
+	        this.results.unselectResult(this.options.moreResultsId, false);
+	        console.log("SECOND")
 
- 		}
- 		else if(this.options.results && this.options.colapsed && item == null){
- 			this.colapsedTap = !this.colapsedTap;
- 			console.log("THIRD")
-	    	idList = []
-	    	this.itemsData.forEach(function(data) {
+	    } else if (this.options.results && this.options.colapsed && item == null) {
+	        this.colapsedTap = !this.colapsedTap;
+	        console.log("THIRD")
+	        idList = []
+	        this.itemsData.forEach(function(data) {
 
 	            idList.push(new Array(data.trip, data.type));
 	        });
 
-	    	this.results.sendEntryMapRequest(idList);
- 		}else if(this.options.results && item != null && item.data.type === "interval" && this.options.colapsed){
- 			console.log("FOURTH")
-	    	this.results.highlightRoute(item.data.trip);
-	    }
-	    else if(this.options.results && item != null && this.options.colapsed && item.data.type === "range"){
-	    	console.log("FIFTH")
-	    	this.results.highlightLocation(item.data.trip);
+	        this.results.sendEntryMapRequest(idList);
+	    } else if (this.options.results && item != null && item.data.type === "interval" && this.options.colapsed) {
+	        console.log("FOURTH")
+	        this.results.highlightRoute(item.data.trip);
+	    } else if (this.options.results && item != null && this.options.colapsed && item.data.type === "range") {
+	        console.log("FIFTH")
+	        this.results.highlightLocation(item.data.trip);
 	    }
 
- 		if(this.options.results && !this.options.colapsed){
+	    if (this.options.results && !this.options.colapsed) {
 
- 			if(!this.expanded)
-	 			if(this.resultsStored)
-	 				this.results.showResults(this.options.moreResultsId);
-	 			else{
-			    	this.results.sendMoreResultsRequest(this.options.moreResultsId);
-			    	this.resultsStored = true;
-		    	}
-	    	else{
-	    		this.results.hideResults(this.options.moreResultsId);
-	    	}
-	    	this.expanded = !this.expanded;
- 		}
+	        if (!this.expanded)
+	            if (this.resultsStored)
+	                this.results.showResults(this.options.moreResultsId);
+	            else {
+	                this.results.sendMoreResultsRequest(this.options.moreResultsId);
+	                this.resultsStored = true;
+	            } else {
+	            this.results.hideResults(this.options.moreResultsId);
+	        }
+	        this.expanded = !this.expanded;
+	    }
 
 
 
@@ -9394,7 +9527,7 @@ module.exports = Group;
 	        event.stopPropagation();
 	        createAndDrag = false;
 	    } else if (this.itemFromTarget(event).data.type === 'interval' && parseInt(this.itemFromTarget(event).width) > 200) {
-	    		            var test = new IntervalItem();
+	        var test = new IntervalItem();
 
 	        var interval = this.itemFromTarget(event);
 	        var rightItemId = this.itemFromTarget(event).data.rightItemId;
@@ -9445,10 +9578,10 @@ module.exports = Group;
 
 
 
-	        	                var id3 = util.randomUUID();
-	                newInterval[this.itemsData._fieldId] = id3;
-	                test.data = newInterval;
-	                test.id = id3;
+	        var id3 = util.randomUUID();
+	        newInterval[this.itemsData._fieldId] = id3;
+	        test.data = newInterval;
+	        test.id = id3;
 
 
 	        newItem.data.rightIntervalId = newInterval.id;
@@ -9576,7 +9709,7 @@ module.exports = Group;
 	        //console.log(newItem.id);
 	        if (Object.keys(this.items).length > 0) { //if there is more than 1 range, there is a need to establish the interval between
 
-	    		            var test = new IntervalItem();
+	            var test = new IntervalItem();
 
 	            var dataset = this.itemsData.getDataSet();
 	            var minStartItem = dataset.min('start');
@@ -9593,7 +9726,7 @@ module.exports = Group;
 	                    end: newItem.start
 	                };
 
-	        	                var id3 = util.randomUUID();
+	                var id3 = util.randomUUID();
 	                newInterval[this.itemsData._fieldId] = id3;
 	                test.data = newInterval;
 	                test.id = id3;
@@ -9615,7 +9748,7 @@ module.exports = Group;
 
 
 
-	        	                var id3 = util.randomUUID();
+	                var id3 = util.randomUUID();
 	                newInterval[this.itemsData._fieldId] = id3;
 	                test.data = newInterval;
 	                test.id = id3;
@@ -9739,22 +9872,24 @@ module.exports = Group;
 
 	ItemSet.prototype.getData = function() {
 
-		message = "{ \"message\": \"query data\",";
+	    message = "{ \"message\": \"query data\",";
 
-		var date = {date: document.getElementById("dateInput").value};
+	    var date = {
+	        date: document.getElementById("dateInput").value
+	    };
 	    var result = JSON.stringify(date) + ",";
 	    var me = this;
 	    var orderedIds = me.itemsData.getIds();
 
-	    for (var i = 0; i< orderedIds.length; i++){
-	    	result += JSON.stringify(me.items[orderedIds[i]].getData()) + ',';
+	    for (var i = 0; i < orderedIds.length; i++) {
+	        result += JSON.stringify(me.items[orderedIds[i]].getData()) + ',';
 	    }
 
-	    result = result.slice(0,-1);
+	    result = result.slice(0, -1);
 	    //result += ']';
 
-	    var data = "\"data\": [" + result +  "]}";
-	   
+	    var data = "\"data\": [" + result + "]}";
+
 	    return message.concat(data);
 	};
 
@@ -9826,11 +9961,11 @@ module.exports = Group;
 	};
 
 	ItemSet.prototype.removeAllItems = function() {
-		var me = this;
-	    	this.itemsData.forEach(function(data) {
+	    var me = this;
+	    this.itemsData.forEach(function(data) {
 
-	            me.removeItem(data.id)
-	        });
+	        me.removeItem(data.id)
+	    });
 
 	};
 
@@ -11517,12 +11652,9 @@ function RangeItem(data, conversion, options) {
         if (data.range == undefined) {
             data.range = 0;
         }
-        if(data.colapsable){
-            RangeItem.prototype.baseClassName = 'item range grad';
-        }
-        else{
+
          RangeItem.prototype.baseClassName = 'item range';
-        }
+
     }
 
     Item.call(this, data, conversion, options);
@@ -11563,7 +11695,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
 
         var location = document.createElement('div');
         location.className = "content-location-result"
-        location.innerHTML = this.data.trip;
+        location.innerText = this.data.trip;
 
         anchor.appendChild(location);
         this.dom.resultLocation = location;
@@ -12703,14 +12835,7 @@ if(this.options.results){
     this._repaintResultLocation(dom.box);
 
 
-    //coloring according to settings
-    if(this.options.results){
-    var place = this.dom.resultLocation.innerHTML;
-    color = util.placesColors[place];
-    this.dom.box.style.backgroundColor = color;
 
-
-    }
 
     if (this.data.leftIntervalId || this.data.rightIntervalId) {
 
@@ -12761,6 +12886,15 @@ if(this.options.results){
 
 };
 
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
 /**
  * Show the item in the DOM (when not already visible). The items DOM will
  * be created when needed.
@@ -12769,6 +12903,23 @@ RangeItem.prototype.show = function() {
     if (!this.displayed) {
         this.redraw();
     }
+
+        //coloring according to settings
+    if(this.options.results){
+    var place = this.dom.resultLocation.innerText;
+    color = util.placesColors[place];
+        if(this.data.colapsable){
+            var rgb = hexToRgb(color);
+        this.dom.box.style.backgroundColor = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)";
+    }
+else{
+    this.dom.box.style.backgroundColor = color;
+
+}
+    }
+
+
+
 };
 
 /**

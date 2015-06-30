@@ -27,13 +27,13 @@
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
-		this.results = null;
+	    this.results = null;
 
-		if(options instanceof Results){
-			this.results = options
-		}
-		this.colapsedTap = false;
-		this.colapsableTap = false;
+	    if (options instanceof Results) {
+	        this.results = options
+	    }
+	    this.colapsedTap = false;
+	    this.colapsableTap = false;
 	    this.body = body;
 	    this.expanded = false;
 	    this.defaultOptions = {
@@ -570,6 +570,36 @@
 	    // check if this component is resized
 	    resized = this._isResized() || resized;
 
+
+	    if (this.options.results && !this.options.colapsed && this.options.moreResultsId != null && this.itemsData != null) {
+
+	        var prevName = "";
+	        for (itemId in this.items) {
+	            if (this.items.hasOwnProperty(itemId)) {
+	                item = this.items[itemId];
+	                if (prevName!= item.data.trip) {
+	                	if(item.data.type != "interval")
+	                    item.dom.resultLocation.style.zIndex = '100'
+	                } 
+	                else {
+	                	if(item.data.type != "interval")
+	                   item.dom.resultLocation.innerText = "";
+	                }
+	                prevName = item.data.trip;
+
+	                //item.dom.box.style.borderLeft = 'none';
+	                //item.dom.box.style.borderRight = 'none';
+	                //
+	            }
+	        }
+
+	        //this.items[minStartItem.id].dom.box.style.borderLeft = "1px solid #97B0F8";
+	        //this.items[maxEndItem.id].dom.box.style.borderRight = "1px solid #97B0F8";
+	        //this.items[maxEndItem.id].dom.resultLocation = 
+
+
+
+	    }
 
 
 	    return resized;
@@ -1234,8 +1264,8 @@
 	 * @param {Event} event
 	 * @private
 	 */
-	 var prevX = -1;
-	 var prevX1 = -1;
+	var prevX = -1;
+	var prevX1 = -1;
 	ItemSet.prototype._onDrag = function(event) {
 	    var exit = false;
 	    if (createAndDrag || event.target.dragUpItem || event.target.dragDownItem || event.target.dragLeftItem || event.target.dragRightItem || event.target.fuzzyDragLeft || event.target.fuzzyDragRight) {
@@ -1269,12 +1299,12 @@
 	                var dragUpItem = event.target.dragUpItem;
 	                var dragDownItem = event.target.dragDownItem;
 
-	               /* if (dragUpItem) {
-	                    offsetY = window.innerHeight - offsetY;
-	                }
-	                if (dragDownItem) {
-	                    offsetY = offsetY;
-	                }*/
+	                /* if (dragUpItem) {
+	                     offsetY = window.innerHeight - offsetY;
+	                 }
+	                 if (dragDownItem) {
+	                     offsetY = offsetY;
+	                 }*/
 
 
 	                if (dragUpItem) {
@@ -1285,12 +1315,12 @@
 	                    }
 
 	                    if (prevX > event.gesture.center.clientY) {
-	                    	if(offsetY < 0) offsetY = -offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY < 0) offsetY = -offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged up' + -offsetY);
 	                    } else if (prevX < event.gesture.center.clientY) { // dragged down
-	                    	if(offsetY > 0) offsetY = -offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY > 0) offsetY = -offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged down' + offsetY);
 	                    }
 	                    prevX = event.gesture.center.clientY;
@@ -1306,17 +1336,17 @@
 	                    }
 
 	                    if (prevX > event.gesture.center.clientY) {
-	                    	if(offsetY < 0) offsetY = offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY < 0) offsetY = offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged up' + -offsetY);
 	                    } else if (prevX < event.gesture.center.clientY) { // dragged down
-	                    	if(offsetY > 0) offsetY = offsetY;
-	                    	else offsetY = 0;
+	                        if (offsetY > 0) offsetY = offsetY;
+	                        else offsetY = 0;
 	                        //console.log('dragged down' + offsetY);
 	                    }
 	                    prevX = event.gesture.center.clientY;
 
-	
+
 	                }
 
 	                if ('change' in props) {
@@ -1514,7 +1544,7 @@
 	                    me.itemsData.getDataSet().update(rightInterval);
 
 
-	  
+
 
 	                    // only apply changes when start or end is actually changed
 	                    if (changed) {
@@ -1584,8 +1614,8 @@
 
 	        var leftIntervalData = this.itemsData.getDataSet().get(item.data.leftIntervalId);
 	        var rightIntervalData = this.itemsData.getDataSet().get(item.data.rightIntervalId);
-	       // console.log(this.itemsData.getDataSet());
-	       // console.log(item.data.leftIntervalId + " " + item.data.rightIntervalId);
+	        // console.log(this.itemsData.getDataSet());
+	        // console.log(item.data.leftIntervalId + " " + item.data.rightIntervalId);
 	        leftIntervalData.end = rightIntervalData.end;
 	        leftIntervalData.rightItemId = rightIntervalData.rightItemId;
 	        this.itemsData.getDataSet().update(leftIntervalData);
@@ -1623,51 +1653,47 @@
 
 	    var newSelection = this.getSelection();
 
- 		if(this.options.results && !this.options.colapsed && !this.colapsableTap){
- 			this.colapsableTap = !this.colapsableTap;
- 			this.results.selectResult(this.options.moreResultsId, true);
-            this.results.sendGlobalMapRequest(this.options.moreResultsId);
-            console.log("FIRST")
- 		}
- 		else if(this.options.results && !this.options.colapsed && this.colapsableTap){
- 				    	this.colapsableTap = !this.colapsableTap;
- 				    	this.results.unselectResult(this.options.moreResultsId, false);
- 				    	console.log("SECOND")
+	    if (this.options.results && !this.options.colapsed && !this.colapsableTap) {
+	        this.colapsableTap = !this.colapsableTap;
+	        this.results.selectResult(this.options.moreResultsId, true);
+	        this.results.sendGlobalMapRequest(this.options.moreResultsId);
+	        console.log("FIRST")
+	    } else if (this.options.results && !this.options.colapsed && this.colapsableTap) {
+	        this.colapsableTap = !this.colapsableTap;
+	        this.results.unselectResult(this.options.moreResultsId, false);
+	        console.log("SECOND")
 
- 		}
- 		else if(this.options.results && this.options.colapsed && item == null){
- 			this.colapsedTap = !this.colapsedTap;
- 			console.log("THIRD")
-	    	idList = []
-	    	this.itemsData.forEach(function(data) {
+	    } else if (this.options.results && this.options.colapsed && item == null) {
+	        this.colapsedTap = !this.colapsedTap;
+	        console.log("THIRD")
+	        idList = []
+	        this.itemsData.forEach(function(data) {
 
 	            idList.push(new Array(data.trip, data.type));
 	        });
 
-	    	this.results.sendEntryMapRequest(idList);
- 		}else if(this.options.results && item != null && item.data.type === "interval" && this.options.colapsed){
- 			console.log("FOURTH")
-	    	this.results.highlightRoute(item.data.trip);
-	    }
-	    else if(this.options.results && item != null && this.options.colapsed && item.data.type === "range"){
-	    	console.log("FIFTH")
-	    	this.results.highlightLocation(item.data.trip);
+	        this.results.sendEntryMapRequest(idList);
+	    } else if (this.options.results && item != null && item.data.type === "interval" && this.options.colapsed) {
+	        console.log("FOURTH")
+	        this.results.highlightRoute(item.data.trip);
+	    } else if (this.options.results && item != null && this.options.colapsed && item.data.type === "range") {
+	        console.log("FIFTH")
+	        this.results.highlightLocation(item.data.trip);
 	    }
 
- 		if(this.options.results && !this.options.colapsed){
+	    if (this.options.results && !this.options.colapsed) {
 
- 			if(!this.expanded)
-	 			if(this.resultsStored)
-	 				this.results.showResults(this.options.moreResultsId);
-	 			else{
-			    	this.results.sendMoreResultsRequest(this.options.moreResultsId);
-			    	this.resultsStored = true;
-		    	}
-	    	else{
-	    		this.results.hideResults(this.options.moreResultsId);
-	    	}
-	    	this.expanded = !this.expanded;
- 		}
+	        if (!this.expanded)
+	            if (this.resultsStored)
+	                this.results.showResults(this.options.moreResultsId);
+	            else {
+	                this.results.sendMoreResultsRequest(this.options.moreResultsId);
+	                this.resultsStored = true;
+	            } else {
+	            this.results.hideResults(this.options.moreResultsId);
+	        }
+	        this.expanded = !this.expanded;
+	    }
 
 
 
@@ -1807,7 +1833,7 @@
 	        event.stopPropagation();
 	        createAndDrag = false;
 	    } else if (this.itemFromTarget(event).data.type === 'interval' && parseInt(this.itemFromTarget(event).width) > 200) {
-	    		            var test = new IntervalItem();
+	        var test = new IntervalItem();
 
 	        var interval = this.itemFromTarget(event);
 	        var rightItemId = this.itemFromTarget(event).data.rightItemId;
@@ -1858,10 +1884,10 @@
 
 
 
-	        	                var id3 = util.randomUUID();
-	                newInterval[this.itemsData._fieldId] = id3;
-	                test.data = newInterval;
-	                test.id = id3;
+	        var id3 = util.randomUUID();
+	        newInterval[this.itemsData._fieldId] = id3;
+	        test.data = newInterval;
+	        test.id = id3;
 
 
 	        newItem.data.rightIntervalId = newInterval.id;
@@ -1989,7 +2015,7 @@
 	        //console.log(newItem.id);
 	        if (Object.keys(this.items).length > 0) { //if there is more than 1 range, there is a need to establish the interval between
 
-	    		            var test = new IntervalItem();
+	            var test = new IntervalItem();
 
 	            var dataset = this.itemsData.getDataSet();
 	            var minStartItem = dataset.min('start');
@@ -2006,7 +2032,7 @@
 	                    end: newItem.start
 	                };
 
-	        	                var id3 = util.randomUUID();
+	                var id3 = util.randomUUID();
 	                newInterval[this.itemsData._fieldId] = id3;
 	                test.data = newInterval;
 	                test.id = id3;
@@ -2028,7 +2054,7 @@
 
 
 
-	        	                var id3 = util.randomUUID();
+	                var id3 = util.randomUUID();
 	                newInterval[this.itemsData._fieldId] = id3;
 	                test.data = newInterval;
 	                test.id = id3;
@@ -2152,22 +2178,24 @@
 
 	ItemSet.prototype.getData = function() {
 
-		message = "{ \"message\": \"query data\",";
+	    message = "{ \"message\": \"query data\",";
 
-		var date = {date: document.getElementById("dateInput").value};
+	    var date = {
+	        date: document.getElementById("dateInput").value
+	    };
 	    var result = JSON.stringify(date) + ",";
 	    var me = this;
 	    var orderedIds = me.itemsData.getIds();
 
-	    for (var i = 0; i< orderedIds.length; i++){
-	    	result += JSON.stringify(me.items[orderedIds[i]].getData()) + ',';
+	    for (var i = 0; i < orderedIds.length; i++) {
+	        result += JSON.stringify(me.items[orderedIds[i]].getData()) + ',';
 	    }
 
-	    result = result.slice(0,-1);
+	    result = result.slice(0, -1);
 	    //result += ']';
 
-	    var data = "\"data\": [" + result +  "]}";
-	   
+	    var data = "\"data\": [" + result + "]}";
+
 	    return message.concat(data);
 	};
 
@@ -2239,11 +2267,11 @@
 	};
 
 	ItemSet.prototype.removeAllItems = function() {
-		var me = this;
-	    	this.itemsData.forEach(function(data) {
+	    var me = this;
+	    this.itemsData.forEach(function(data) {
 
-	            me.removeItem(data.id)
-	        });
+	        me.removeItem(data.id)
+	    });
 
 	};
 

@@ -35,12 +35,9 @@ function RangeItem(data, conversion, options) {
         if (data.range == undefined) {
             data.range = 0;
         }
-        if(data.colapsable){
-            RangeItem.prototype.baseClassName = 'item range grad';
-        }
-        else{
+
          RangeItem.prototype.baseClassName = 'item range';
-        }
+
     }
 
     Item.call(this, data, conversion, options);
@@ -81,7 +78,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
 
         var location = document.createElement('div');
         location.className = "content-location-result"
-        location.innerHTML = this.data.trip;
+        location.innerText = this.data.trip;
 
         anchor.appendChild(location);
         this.dom.resultLocation = location;
@@ -1221,14 +1218,7 @@ if(this.options.results){
     this._repaintResultLocation(dom.box);
 
 
-    //coloring according to settings
-    if(this.options.results){
-    var place = this.dom.resultLocation.innerHTML;
-    color = util.placesColors[place];
-    this.dom.box.style.backgroundColor = color;
 
-
-    }
 
     if (this.data.leftIntervalId || this.data.rightIntervalId) {
 
@@ -1279,6 +1269,15 @@ if(this.options.results){
 
 };
 
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
 /**
  * Show the item in the DOM (when not already visible). The items DOM will
  * be created when needed.
@@ -1287,6 +1286,23 @@ RangeItem.prototype.show = function() {
     if (!this.displayed) {
         this.redraw();
     }
+
+        //coloring according to settings
+    if(this.options.results){
+    var place = this.dom.resultLocation.innerText;
+    color = util.placesColors[place];
+        if(this.data.colapsable){
+            var rgb = hexToRgb(color);
+        this.dom.box.style.backgroundColor = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)";
+    }
+else{
+    this.dom.box.style.backgroundColor = color;
+
+}
+    }
+
+
+
 };
 
 /**

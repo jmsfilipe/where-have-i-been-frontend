@@ -15,6 +15,17 @@ var map;
 var markers = {};
 var trips = {};
 var bounds = new google.maps.LatLngBounds();
+var icons = {};
+
+    var selectedStyle = {
+        strokeColor: '#fc6355',
+        strokeWeight: 3
+    }
+        var unselectedStyle = {
+        strokeColor: '#e0e0e0',
+        strokeWeight: 2
+    }
+
 
 function Map() {
 
@@ -34,6 +45,16 @@ var range = 0;
             range = event.detail.message;
             
         });
+
+var iconBase = 'http://www.google.com/intl/en_us/mapfiles/ms/micons/';
+icons = {
+  selected: {
+    icon: iconBase + 'red-dot.png'
+  },
+  unselected: {
+    icon: iconBase + 'grey.png'
+  }
+};
 
 
 google.maps.event.addListener(map, "click", function (event) {
@@ -108,11 +129,10 @@ function showMarkers() {
 function addMarker(name, data){
     var yourLocation = new google.maps.LatLng(data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]);
 
-              var iconBase = 'http://maps.google.com/mapfiles/ms/icons/';
             var marker = new google.maps.Marker({
                 position: yourLocation,
                 map: map,
-                icon: iconBase + 'red-dot.png'
+                icon: icons["unselected"].icon
             });
             markers[name] = marker;
 
@@ -131,10 +151,29 @@ google.maps.event.trigger(map, 'resize');
 
 Map.prototype.highlightLocation = function(id) {
 
+for(var mKey in markers) {
+      if(mKey === id){
+        markers[mKey].icon = icons["selected"].icon;
+      }
+      else{
+         markers[mKey].icon = icons["unselected"].icon;
+      }
+    
+
+}
+  
+showMarkers();
+
+map.setZoom(17);
+map.panTo(markers[id].position);
+
 }
 
 
 Map.prototype.highlightRoute = function(id) {
+
+
+      console.log(map.data)
 
 }
 
@@ -143,16 +182,12 @@ Map.prototype.clearAll = function(id) {
     clearMap();
 }
 
-Map.prototype.mapView = function(data) {
+Map.prototype.globalMapView = function(data) {
     clearMarkers();
     clearMap();
 
   var locations = data["locations"];
   var trips = data["trips"];
-    var featureStyle = {
-        strokeColor: '#F74F4F',
-        strokeWeight: 3
-    }
 
 for(var key in locations) {
     if(locations.hasOwnProperty(key) && locations[key].features != null) {
@@ -160,7 +195,7 @@ for(var key in locations) {
     }
 }
   
-map.data.setStyle(featureStyle);
+map.data.setStyle(unselectedStyle);
 for(var key in trips) {
     if(trips.hasOwnProperty(key) && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
@@ -175,6 +210,82 @@ else{
 }
 
 }
+
+Map.prototype.mapView = function(data) {
+    clearMarkers();
+    clearMap();
+
+  var locations = data["locations"];
+  var trips = data["trips"];
+
+console.log(locations)
+console.log(trips)
+for(var key in locations) {
+    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+        addMarker(key, locations[key]);
+    }
+}
+
+for(var mKey in markers) {
+    markers[mKey].icon = icons["unselected"].icon;
+    for(var lKey in locations) {
+      if(mKey === lKey){
+        console.log("SELECTED " + mKey)
+        markers[mKey].icon = icons["selected"].icon;
+      }
+    
+}
+}
+
+var noTrips = false;
+map.data.setStyle(selectedStyle);
+for(var key in trips) {
+    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+        map.data.addGeoJson(trips[key]);
+    }
+    else{
+      noTrips = true;
+    }
+}
+
+  if(Object.keys(trips).length == 0 || noTrips){
+  map.fitBounds(bounds);
+  map.setCenter(bounds.getCenter());}
+else{
+  zoom(map);
+}
+
+}
+
+Map.prototype.highlightMapView = function(data) {
+  var locations = data["locations"];
+  var _trips = data["trips"];
+console.log(markers)
+console.log(locations)
+for(var mKey in markers) {
+    markers[mKey].icon = icons["unselected"].icon;
+    for(var lKey in locations) {
+      if(mKey === lKey){
+        console.log("SELECTED " + mKey)
+        markers[mKey].icon = icons["selected"].icon;
+      }
+    
+}
+}
+  
+showMarkers();
+
+
+
+  if(Object.keys(trips).length == 0){
+  map.fitBounds(bounds);
+  map.setCenter(bounds.getCenter());}
+else{
+  zoom(map);
+}
+
+}
+
 
 Map.prototype.loadJson = function(geoString) {
     clearMap();

@@ -144,6 +144,29 @@ else{
   else {
     this._redraw();
   }
+
+   var me = this;
+
+          document.addEventListener("newSearch", function(event) {
+        	if(!me.options.results){
+        		        		console.log("GGGGG")
+        		        		console.log(data)
+
+        	data = event.detail.message;
+        	console.log(data)
+        	$("#results").empty();
+
+        	var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+			me.results.map.clearAll();
+			//me.itemSet.removeAllItems();
+        	me.setItems(data);
+
+        }
+        });
+
 }
 
 // Extend the functionality from Core
@@ -156,7 +179,12 @@ Timeline.prototype = new Core();
  */
 Timeline.prototype.redraw = function() {
   this.itemSet && this.itemSet.markDirty({refreshItems: true});
+
+
+
   this._redraw();
+
+
 };
 
 /**

@@ -34,8 +34,8 @@ function Map() {
 function initialize() {
 
     var mapProp = {
-        center: new google.maps.LatLng(0, 0),
-        zoom: 2,
+        center: new google.maps.LatLng(38.7902476,-9.2141835),
+        zoom: 10,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById("map"), mapProp);
@@ -56,6 +56,26 @@ icons = {
   }
 };
 
+document.addEventListener("showCoordinates", function(event) {
+
+coords = event.detail.message;
+res = coords.split(",");
+var position = new google.maps.LatLng(res[0], res[1]);
+map.panTo(position);
+
+              var iconBase = 'http://maps.google.com/mapfiles/ms/icons/';
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                icon: iconBase + 'red-dot.png'
+            });
+
+              setTimeout(function () {
+        marker.setMap(null);
+        delete marker;
+    }, 4000);
+
+});
 
 google.maps.event.addListener(map, "click", function (event) {
     var latitude = event.latLng.lat();
@@ -151,6 +171,7 @@ google.maps.event.trigger(map, 'resize');
 
 Map.prototype.highlightLocation = function(id) {
 
+if(markers[id]){
 for(var mKey in markers) {
       if(mKey === id){
         markers[mKey].icon = icons["selected"].icon;
@@ -161,12 +182,12 @@ for(var mKey in markers) {
     
 
 }
-  
+
 showMarkers();
 
 map.setZoom(17);
 map.panTo(markers[id].position);
-
+}
 }
 
 
@@ -190,14 +211,14 @@ Map.prototype.globalMapView = function(data) {
   var trips = data["trips"];
 
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }
   
 map.data.setStyle(unselectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
     }
 }
@@ -221,7 +242,7 @@ Map.prototype.mapView = function(data) {
 console.log(locations)
 console.log(trips)
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }

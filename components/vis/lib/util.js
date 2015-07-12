@@ -10,9 +10,15 @@ var moment = require('./module/moment');
  * @return {Boolean} isNumber
  */
 
+
+
+exports.categoriesPlaces = null;
+
+exports.categoriesColors = null;
+
 exports.locationNames = [];
-exports.categoriesPlaces = {};
-exports.categoriesColors = {};
+//exports.categoriesPlaces = {};
+//exports.categoriesColors = {};
 exports.placesColors = {};
 
 exports.isNumber = function(object) {

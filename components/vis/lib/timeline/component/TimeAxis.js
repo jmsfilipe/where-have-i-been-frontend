@@ -162,6 +162,7 @@ TimeAxis.prototype._create = function() {
 
             search.onclick = function() {
                 me.results.sendQueryData(me.itemSet.getData());
+                me.results.clearResults();
             };
             var clear = document.getElementById("clearButton");
 

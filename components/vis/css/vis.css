@@ -432,7 +432,7 @@ position: absolute;
   box-shadow: none;
   border: none;
   height:13px; 
-  width: 60px; 
+  width: 110px; 
   font-size: small;
  
   cursor: text;
@@ -454,7 +454,7 @@ position: absolute;
   outline: none;
 
   height:11px; 
-  width: 60px; 
+  width: 110px; 
   font-size: small;
   cursor: text;
   text-align: center;
@@ -467,15 +467,15 @@ position: absolute;
 .vis.timeline .item.range .content-location-result {
 
   color: #494949;
-  position: relative;
+  position: absolute;
   border: none;
-  height:17px; 
- top: -40px;
+  width: 100%;
   font-size: small;
  overflow: hidden;
   text-align: center;
 z-index: 10;
     margin: 0 auto;
+    white-space: nowrap;
 }
 
 
@@ -559,7 +559,7 @@ z-index: 10;
   position: absolute;
   width: 15px;
   height: 15px;
-  left: 32px;
+  left: 43px;
   bottom: 10px;
   cursor: pointer;
 }
@@ -569,7 +569,17 @@ z-index: 10;
   position: absolute;
   width: 15px;
   height: 15px;
-  left: 32px;
+  left: 43px;
+  bottom: 10px;
+  cursor: pointer;
+}
+
+.vis.timeline .move-result-up {
+  background: url('../img/timeline/search_icon.png') no-repeat top center;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 21px;
   bottom: 10px;
   cursor: pointer;
 }
@@ -596,29 +606,29 @@ z-index: 10;
 .vis.timeline .item.range .result-start {
 
   color:#494949;
-  position: relative;
-  bottom: -25px;
+  position: absolute;
+  bottom: -22px;
   left: -10px;
   font-size: small;
   overflow: hidden;
   z-index:2;
-  width: 100%;
-  height: 100%;
-  margin-right: -15px;
+  background-color: white;
+padding-left: 5px;
+padding-right:5px;
 }
 
 .vis.timeline .item.range .result-end {
 
   color:#494949;
-  position: relative;
-  bottom: -5px;
-  right:  calc(-100% + 10px);
+  position: absolute;
+  bottom: -22px;
+  right:  -10px;
   font-size: small;
   overflow: hidden;
   z-index:3;
-   width: 100%;
-  height: 100%;
-  margin-left: -15px;
+  background-color: white;
+padding-left: 5px;
+padding-right:5px;
 }
 
 .vis.timeline .item.range .start-box:focus {
@@ -788,6 +798,7 @@ z-index: 10;
 
 .vis.timeline .item.interval {
 	left: -5%;
+  height: 0px;
   background: transparent;
   border-top: 0px none;
   border-left: 0px none;
@@ -796,7 +807,6 @@ z-index: 10;
   position: absolute;
   border-style: solid;
   border-color: #bfbfbf;
-  z-index: -1;
 }
 
 .vis.timeline .item.interval .location-box {
@@ -806,7 +816,7 @@ z-index: 10;
   border-color: transparent;
   outline: none;
   height:15px; 
-  width: 60px; 
+  width: 70px; 
   font-size: x-small;
   position: absolute;
   bottom: -15px;
@@ -827,13 +837,14 @@ z-index: 10;
   outline: none;
 
   height:10px; 
-  width: 60px; 
+  width: 70px; 
   font-size: x-small;
   position: absolute;
   bottom: -15px;
   left: calc(50% - 30px);
   cursor: text;
   text-align: center;
+  z-index: 100;
 
 }
 
@@ -872,6 +883,7 @@ z-index: 10;
   left: calc(50% - 35px);
   cursor: text;
   text-align: center;
+  z-index: 100;
 
 }
 

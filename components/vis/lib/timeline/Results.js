@@ -61,6 +61,22 @@ function Results() {
 
         me.sendLocationNamesRequest();
 
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
+};
+
+        vis.categoriesPlaces = new List('placesList', options);
+
+        vis.categoriesColors = new List('categoriesList', options);
+
+      //  vis.categoriesColors.remove("category", "Category");
+        //vis.categoriesColors.remove("color", "#eeeeee");
+        
+        //vis.categoriesPlaces.remove("category", "Category");
+        //vis.categoriesPlaces.remove("place", "Place");
+
+
 $('#importCategoryButton').on('click', function(e){ //hack to change the css style of the input file
         e.preventDefault()
         $("#importCategoryInput").trigger('click')
@@ -131,13 +147,11 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
                 break;
             case "settings result":
 
-     
+                console.log(obj.data);
                   updateSettings(obj.data);
-                  if(Object.keys(util.categoriesPlaces).length  == 0 || Object.keys(util.categoriesColors).length  == 0)
+                  if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
-                  else{
-                    updateTables();
-                  }
+        
   
                 break;
         }
@@ -281,9 +295,11 @@ Results.prototype.addColapsableResult = function(obj, size) {
             end: obj[i].end_date,
             trip: obj[i].id,
             colapsable: colapsable,
-            date: obj[i].date
+            date: obj[i].date,
+            quartile: obj[i].quartile
         });
     }
+    console.log(content)
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
 
@@ -413,28 +429,6 @@ function browserSupportFileUpload() {
 }
 
 
-var nrCategory = -1;
-var nrPlace = -1;
-var categories = [];
-
-
-
-function updateCategories() {
-    categories = [];
-    table = document.getElementById("categoriesTable");
-    rows = table.rows.length;
-
-        for (i = 0; i < rows; i++) {
-          category = document.getElementById("categoryName" + i);
-    categories.push( { "value": category.value, "data": "any" });
-
-
-    }
-
-
- return categories;
-
-}
 
 function uploadCategory(evt) {
     if (!browserSupportFileUpload()) {
@@ -451,32 +445,10 @@ function uploadCategory(evt) {
             if (data && data.length > 0) {
 
                 for (var i = 0; i < data.length; i++) {
-                    tr = document.createElement('tr');
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "150px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
-
-                    ++nrCategory;
-                    text.id = "categoryName" + nrCategory;
-
-                    text.setAttribute("value", data[i][0]);
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    td = document.createElement('td');
-                    color = document.createElement('input');
-                    color.style.border = "0";
-                    color.style.width = "55px";
-                    color.id = "categoryColor" + nrCategory;
-                    var myPicker = new jscolor.color(color, {});
-                    myPicker.fromString(data[i][1]);
-                    tr.appendChild(td);
-                    td.appendChild(color);
-
-                    table.appendChild(tr);
+                            vis.categoriesColors.add({
+  place: data[i][0],
+  category: data[i][1]
+});
                 }
 
 
@@ -494,7 +466,23 @@ function uploadCategory(evt) {
 
 Results.prototype.updateLocationSettings = function() {
 
+ for (i = 0; i < util.locationNames.length; i++) {
+        vis.categoriesPlaces.add({
+  place: util.locationNames[i].value,
+  category: "Category"
+});
+    }
 
+        vis.categoriesPlaces.items.forEach(function(key) {
+
+         vis.categoriesColors.items.forEach(function(key2){
+
+                if(key._values.category == key2._values.category)
+                util.placesColors[key._values.place] = key2._values.color;
+         });
+    });
+
+/*
     var table = document.getElementById("placesTable");
 
     for (i = 0; i < util.locationNames.length; i++) {
@@ -517,6 +505,7 @@ Results.prototype.updateLocationSettings = function() {
         $(text).autocomplete({
             lookup: util.locationNames
         });
+        text.className = "place";
         cell1.appendChild(text);
 
         text = document.createElement('input');
@@ -526,6 +515,7 @@ Results.prototype.updateLocationSettings = function() {
         text.style.color = "white";
         text.id = "placeCategoryName" + nrPlace;
         text.setAttribute("value","Category");
+        text.className = "category";
 
 
              $(text).autocomplete({
@@ -544,12 +534,12 @@ Results.prototype.updateLocationSettings = function() {
 
     }
 
-
+*/
 }
 
 
 function updateTables() {
-  nrPlace = -1;
+/*  nrPlace = -1;
   nrCategory = -1;
 
     var table = document.getElementById("placesTable");
@@ -576,6 +566,7 @@ function updateTables() {
         $(text).autocomplete({
             lookup: util.locationNames
         });
+        text.className = "place";
         cell1.appendChild(text);
 
         text = document.createElement('input');
@@ -585,7 +576,7 @@ function updateTables() {
         text.style.color = "white";
         text.id = "placeCategoryName" + nrPlace;
         text.setAttribute("value",entry);
-
+        text.className = "category";
 
              $(text).autocomplete({
                          lookup: function (query, done) {
@@ -624,6 +615,7 @@ function updateTables() {
         text.style.color = "white";
         text.id = "categoryName" + nrCategory;
         text.setAttribute("value",entry);
+        text.className = "category";
         $(text).autocomplete({
             lookup: util.locationNames
         });
@@ -633,15 +625,16 @@ function updateTables() {
         color.style.border = "0";
         color.style.width = "55px";
         color.id = "categoryColor" + nrCategory;
-        var myPicker = new jscolor.color(color, {});
-        myPicker.fromString(util.categoriesColors[entry]);
+        color.type = "color";
+        color.value = util.categoriesColors[entry];
+        color.className = "color";
 
         cell2.appendChild(color);
 
 
     }
   
-
+*/
 
 }
 
@@ -660,45 +653,12 @@ function uploadPlace(evt) {
             if (data && data.length > 0) {
 
                 for (var i = 0; i < data.length; i++) {
-                    tr = document.createElement('tr');
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "150px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
 
-                    ++nrPlace;
+        vis.categoriesPlaces.add({
+  place: data[i][0],
+  category: data[i][1]
+});
 
-                    text.id = "placeName" + nrPlace;
-
-                    text.setAttribute("value", data[i][0]);
-
-                    $(text).autocomplete({
-                        lookup: util.locationNames
-                    });
-
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "60px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
-
-                    text.id = "placeCategoryName" + nrPlace;
-
-                    text.setAttribute("value", data[i][1]);
-
-   
-                             
-
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    table.appendChild(tr);
                 }
 
 
@@ -714,116 +674,30 @@ function uploadPlace(evt) {
 }
 
 function newCategory() {
-    var table = document.getElementById("categoriesTable");
 
-    // Create an empty <tr> element and add it to the 1st position of the table:
-    var row = table.insertRow(0);
-
-    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    ++nrCategory;
-
-    text = document.createElement('input');
-    text.style.width = "150px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "categoryName" + nrCategory;
-    text.setAttribute("value","Category");
-    cell1.appendChild(text);
-
-
-
-    color = document.createElement('input');
-    color.style.border = "0";
-    color.style.width = "55px";
-    color.id = "categoryColor" + nrCategory;
-    var myPicker = new jscolor.color(color, {});
-    myPicker.fromString("#000000");
-    cell2.appendChild(color);
-
+    vis.categoriesColors.add({
+  category: "Category",
+  color: "#000000"
+});
 
 }
 
 
 function newPlace() {
-    var table = document.getElementById("placesTable");
-
-    // Create an empty <tr> element and add it to the 1st position of the table:
-    var row = table.insertRow(0);
-
-    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    ++nrPlace;
-
-    text = document.createElement('input');
-    text.style.width = "150px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "placeName" + nrPlace;
-    text.setAttribute("value", "Place");
-    $(text).autocomplete({
-        lookup: util.locationNames
-    });
-    cell1.appendChild(text);
-
-    text = document.createElement('input');
-    text.style.width = "60px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "placeCategoryName" + nrPlace;
-    text.setAttribute("value", "Category");
-    cell2.appendChild(text);
- 
+        vis.categoriesPlaces.add({
+  place: "Place",
+  category: "Category"
+});
 
 }
 
 function exportCategory(evt) {
 
-    table = document.getElementById("categoriesTable");
-    $table = $(table);
-
-
-    var $rows = $table.find('tr:has(td)'),
-
-        // Temporary delimiter characters unlikely to be typed by keyboard
-        // This is to avoid accidentally splitting the actual contents
-        tmpColDelim = String.fromCharCode(11), // vertical tab character
-        tmpRowDelim = String.fromCharCode(0), // null character
-
-        // actual delimiter characters for CSV format
-        colDelim = '","',
-        rowDelim = '"\r\n"',
-
-        // Grab text from table into CSV formatted string
-        csv = '"' + $rows.map(function(i, row) {
-            var $row = $(row),
-                $cols = $row.find('td');
-
-            return $cols.map(function(j, col) {
-                if (j % 2 == 0) {
-                    category = document.getElementById("categoryName" + i);
-
-                    text = category.value;
-                } else {
-                    var $col = $(col),
-                        text = $col.html();
-                    html = $.parseHTML(text);
-                    color = $(html).css("background-color");
-                    text = colorToHex(color);
-                }
-                return text.replace(/"/g, '""'); // escape double quotes
-
-            }).get().join(tmpColDelim);
-
-        }).get().join(tmpRowDelim)
-        .split(tmpRowDelim).join(rowDelim)
-        .split(tmpColDelim).join(colDelim) + '"';
-
+    var items = vis.categoriesColors.items;
+    var csv = "";
+    items.forEach(function(item) {
+    csv += item._values.category + "," + item._values.color + "\n";
+  });
 
 
     window.location.href = 'data:application/csv;charset=UTF-8,' + encodeURIComponent(csv);
@@ -833,44 +707,11 @@ function exportCategory(evt) {
 
 function exportPlace(evt) {
 
-    table = document.getElementById("placesTable");
-    $table = $(table);
-
-
-    var $rows = $table.find('tr:has(td)'),
-
-        // Temporary delimiter characters unlikely to be typed by keyboard
-        // This is to avoid accidentally splitting the actual contents
-        tmpColDelim = String.fromCharCode(11), // vertical tab character
-        tmpRowDelim = String.fromCharCode(0), // null character
-
-        // actual delimiter characters for CSV format
-        colDelim = '","',
-        rowDelim = '"\r\n"',
-
-        // Grab text from table into CSV formatted string
-        csv = '"' + $rows.map(function(i, row) {
-            var $row = $(row),
-                $cols = $row.find('td');
-
-            return $cols.map(function(j, col) {
-                if (j % 2 == 0) {
-                    category = document.getElementById("placeName" + i);
-
-                    text = category.value;
-                } else {
-                    category = document.getElementById("placeCategoryName" + i);
-
-                    text = category.value;
-                }
-                return text.replace(/"/g, '""'); // escape double quotes
-
-            }).get().join(tmpColDelim);
-
-        }).get().join(tmpRowDelim)
-        .split(tmpRowDelim).join(rowDelim)
-        .split(tmpColDelim).join(colDelim) + '"';
-
+    var items = vis.categoriesPlaces.items;
+    var csv = "";
+    items.forEach(function(item) {
+    csv += item._values.place + "," + item._values.category + "\n";
+  });
 
 
     window.location.href = 'data:application/csv;charset=UTF-8,' + encodeURIComponent(csv);
@@ -879,30 +720,21 @@ function exportPlace(evt) {
 }
 
 
-function colorToHex(color) {
-    if (color.substr(0, 1) === '#') {
-        return color;
-    }
-    var digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(color);
+Results.prototype.saveSettings = function() {
+$('.ui.sidebar').sidebar('toggle');
 
-    var red = parseInt(digits[2]);
-    var green = parseInt(digits[3]);
-    var blue = parseInt(digits[4]);
-
-    var rgb = blue | (green << 8) | (red << 16);
-    return digits[1] + '#' + rgb.toString(16);
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
 };
 
 
+        vis.categoriesPlacesTemp = new List('placesList', options);
 
-Results.prototype.saveSettings = function() {
-
-
-util.categoriesColors = {};
-util.categoriesPlaces = {};
-$('.ui.sidebar').sidebar('toggle');
+        vis.categoriesColorsTemp = new List('categoriesList', options);
 
 
+/*
 for(i = 0; i<= nrCategory; i++){
   category = document.getElementById("categoryName" + i);
   category = category.value;
@@ -938,16 +770,38 @@ for(i = 0; i<= nrPlace; i++){
       }
 
     }
+*/
+    var colors = [];
+    var categories = [];
+
+    vis.categoriesColorsTemp.items.forEach(function(item) {
+    colors.push([item._values.category, item._values.color]);
+  });
+    vis.categoriesPlacesTemp.items.forEach(function(item) {
+    categories.push([item._values.place, item._values.category]);
+  });
+
+    this.saveToDatabase(colors, categories);
+    vis.categoriesPlaces = vis.categoriesPlacesTemp;
+    vis.categoriesColors = vis.categoriesColorsTemp;
 
 
-    this.saveToDatabase(util.categoriesColors, util.categoriesPlaces);
+    vis.categoriesPlaces.items.forEach(function(key) {
+
+         vis.categoriesColors.items.forEach(function(key2){
+
+                if(key._values.category == key2._values.category)
+                util.placesColors[key._values.place] = key2._values.color;
+         });
+    });
 
 
 };
 
 
 Results.prototype.saveToDatabase = function(colors, categories){
-
+    console.log(colors);
+    console.log(categories);
     var content = {
         colors: colors,
         categories: categories
@@ -977,18 +831,40 @@ Results.prototype.loadSettingsFromDatabase = function(){
 function updateSettings(data){
   var categories = data[0];
   var colors = data[1];
+console.log(categories);
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
+};
 
-  util.categoriesPlaces = {};
-  util.categoriesColors = {};
+
+        vis.categoriesPlaces = new List('placesList', options);
+
+        vis.categoriesColors = new List('categoriesList', options);
+
+        vis.categoriesColors.remove("category", "Category");
+        vis.categoriesColors.remove("color", "#eeeeee");
+        
+        vis.categoriesPlaces.remove("category", "Category");
+        vis.categoriesPlaces.remove("place", "Place");
 
   for(i = 0; i < categories.length; i++){
-    util.categoriesPlaces[categories[i][0]] = categories[i][1];
+
+        vis.categoriesPlaces.add({
+  place: categories[i][0],
+  category: categories[i][1]
+});
+
   }
   for(i = 0; i < colors.length; i++){
-    util.categoriesColors[colors[i][0]] = colors[i][1];
+            vis.categoriesColors.add({
+  category: colors[i][0],
+  color: colors[i][1]
+});
+
   }
 
-    for (var key in util.categoriesPlaces){
+ /*   for (var key in util.categoriesPlaces){
 
       if (util.categoriesPlaces.hasOwnProperty(key)) {
               var places = util.categoriesPlaces[key];
@@ -998,7 +874,7 @@ function updateSettings(data){
         }
       }
 
-    }
+    }*/
 
 };
 
@@ -1007,10 +883,33 @@ Results.prototype.clearEverything = function() {
 
 if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
+
+            var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+
 this.map.clearAll();
 this.itemSet.removeAllItems();
  }
 
 }
+
+Results.prototype.clearResults = function() {
+
+if(typeof this.itemSet != 'undefined'){
+$("#results").empty();
+
+            var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+
+this.map.clearAll();
+//this.itemSet.removeAllItems();
+ }
+
+}
+
 
 module.exports = Results;

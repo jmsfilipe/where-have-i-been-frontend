@@ -13,6 +13,7 @@
 	var IntervalItem = require('./item/IntervalItem');
 	var moment = require('../../module/moment');
 	var Results = require('../Results');
+	var stack = require('../Stack');
 
 	var UNGROUPED = '__ungrouped__'; // reserved group id for ungrouped items
 	var BACKGROUND = '__background__'; // reserved group id for background items without group
@@ -27,8 +28,9 @@
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
+		this.tap = false;
 	    this.results = null;
-
+	    this.once = true;
 	    if (options instanceof Results) {
 	        this.results = options
 	    }
@@ -140,6 +142,10 @@
 
 	    this.setOptions(options);
 
+
+
+
+
 	    this._create();
 
 
@@ -188,6 +194,7 @@
 	    labelSet.className = 'labelset';
 	    this.dom.labelSet = labelSet;
 
+
 	    // create ungrouped Group
 	    this._updateUngrouped();
 
@@ -219,8 +226,73 @@
 	    // add item on doubletap
 	    this.hammer.on('doubletap', this._onAddItem.bind(this));
 
+		var me = this;
+
+
+
 	    // attach to the DOM
 	    this.show();
+	};
+
+	ItemSet.prototype.useAsSearch = function() {
+		var items = [];
+
+		
+			var array = $.map(this.items, function(value, index) {
+    return [value]; //obj to array
+});
+			stack.orderByStart(array);
+
+	        for(i = 0; i< array.length; i++){
+	        	var leftItemId, rightItemId, leftIntervalId, rightIntervalId;
+
+	        	if(array[i].data.type == "range"){
+	        		if(i == 0 && array.length > 1)
+	        			rightIntervalId = array[i+1].data.id;
+	        		else if(i == array.length-1 && array.length > 1)
+	        			leftIntervalId = array[i-1].data.id;
+	        		else{
+	        			rightIntervalId = array[i+1].data.id;
+	        			leftIntervalId = array[i-1].data.id;
+	        		}
+	        	}
+	        	else if(array[i].data.type == "interval"){
+	        		leftItemId = array[i-1].data.id;
+	        		rightItemId = array[i+1].data.id;
+
+	        	}
+
+	        	items.push({
+		            id: array[i].data.id,
+		            type: array[i].data.type,
+		            content: array[i].data.id,
+		            trip: array[i].data.trip,
+		            start: array[i].data.start,
+		            end: array[i].data.end,
+		            date: array[i].data.date,
+		            colapsable: false,
+		            newSearch: true,
+		            leftItemId: leftItemId,
+		            rightItemId: rightItemId,
+		            leftIntervalId: leftIntervalId,
+		            rightIntervalId: rightIntervalId
+        		})
+
+	 	}
+
+	        var data = new vis.DataSet(items);
+
+    var event1 = new CustomEvent(
+  "newSearch", 
+  {
+    detail: {
+      message: data
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+
 	};
 
 	/**
@@ -409,6 +481,8 @@
 	    if (!this.dom.labelSet.parentNode) {
 	        this.body.dom.left.appendChild(this.dom.labelSet);
 	    }
+
+
 	};
 
 	/**
@@ -501,6 +575,23 @@
 	 * @return {boolean} Returns true if the component is resized
 	 */
 	ItemSet.prototype.redraw = function() {
+
+
+
+
+		if(this.once){
+			    if(this.options && this.options.results){
+        var resultUp = document.createElement('div');
+        resultUp.className = 'move-result-up';
+        this.body.dom.leftContainer.appendChild(resultUp);
+        var me = this;
+        resultUp.onclick=function(){me.useAsSearch();};
+
+    	}
+    	this.once = false;
+    }
+
+
 	    var margin = this.options.margin,
 	        range = this.body.range,
 	        asSize = util.option.asSize,
@@ -571,12 +662,22 @@
 	    resized = this._isResized() || resized;
 
 
+
+
+
 	    if (this.options.results && !this.options.colapsed && this.options.moreResultsId != null && this.itemsData != null) {
 
+			var array = $.map(this.items, function(value, index) {
+    return [value]; //obj to array
+});
+			stack.orderByStart(array);
+
+
 	        var prevName = "";
-	        for (itemId in this.items) {
-	            if (this.items.hasOwnProperty(itemId)) {
-	                item = this.items[itemId];
+	        for(i = 0; i< array.length; i++){
+
+
+	                item = array[i];
 	                if (prevName!= item.data.trip) {
 	                	if(item.data.type != "interval")
 	                    item.dom.resultLocation.style.zIndex = '100'
@@ -590,7 +691,7 @@
 	                //item.dom.box.style.borderLeft = 'none';
 	                //item.dom.box.style.borderRight = 'none';
 	                //
-	            }
+	            
 	        }
 
 	        //this.items[minStartItem.id].dom.box.style.borderLeft = "1px solid #97B0F8";
@@ -1631,7 +1732,36 @@
 	 * @private
 	 */
 	ItemSet.prototype._onSelectItem = function(event) {
+
+		    if (this.options.results) {
+        this.tap = !this.tap;
+        if (this.tap) {
+            this.body.dom.background.style.background = "#EEEEEE";
+            	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "#EEEEEE";
+                         	item.dom.resultEndBox.style.background = "#EEEEEE";
+                         }
+	                    });
+
+
+
+        } else {
+            this.body.dom.background.style.background = "white";
+
+                        	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+        }
+    }
+
 	    if (!this.options.selectable) return;
+
 
 
 
@@ -2193,6 +2323,8 @@
 
 	    result = result.slice(0, -1);
 	    //result += ']';
+
+	    console.log(result)
 
 	    var data = "\"data\": [" + result + "]}";
 

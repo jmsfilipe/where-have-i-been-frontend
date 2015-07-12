@@ -57,26 +57,60 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     locationBox.className = 'location-box';
     locationBox.title = 'Route name';
     locationBox.value = 'route';
+    locationBox.coords = "route";
 
     $(locationBox).autocomplete({
-      lookup: this.parent.itemSet.availableTags
+      lookup: this.parent.itemSet.availableTags,
+      onSelect: function (suggestion) {
+        locationBox.coords = suggestion.value;
+    }
     });
 
     Hammer(locationBox, {
       preventDefault: true
     }).on('tap', function (event) {
                            $(me.dom.durationBox).timepicker('hideWidget');
+$(locationBox).bind('input', function() { 
+   locationBox.coords = locationBox.value;
+});
 
       locationBox.focus();
-      if(locationBox.value === "route") locationBox.value = "";
+      if(locationBox.value === "route") {locationBox.value = ""; locationBox.coords = "";};
 
         document.addEventListener("mapCoordinates", function(event) {
             coords = event.detail.message;
-            locationBox.value = coords;
+            res = coords.split(",");
+
+            lat = Math.floor(res[0]*1000+0.5)/1000;
+            lon = Math.floor(res[1]*1000+0.5)/1000;
+
+            locationBox.coords = coords;
+            locationBox.value = lat + "," + lon;
         });
 
       event.stopPropagation();
     });
+
+    locationBox.onfocus=function(){
+    var patt = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/g
+var res = patt.test(locationBox.coords);
+if(res){
+
+
+    var event1 = new CustomEvent(
+  "showCoordinates", 
+  {
+    detail: {
+      message: locationBox.coords
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+}
+};
+
+
     Hammer(everything, { //unfocus if clicked outside
       preventDefault: true
     }).on('tap', function (event) {
@@ -90,7 +124,7 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     });
 
                     locationBox.addEventListener("blur", function() {
-              if(locationBox.value === "") locationBox.value = "route";
+              if(locationBox.value === "") {locationBox.value = "route"; locationBox.coords = "route";}
         });
 
 
@@ -270,7 +304,7 @@ IntervalItem.prototype.isVisible = function(range) {
 
 IntervalItem.prototype.getData = function() {
   var data = {
-      route: this.dom.locationBox.value,
+      route: this.dom.locationBox.coords,
       duration: this.dom.durationBox.value,
       start : document.getElementById("endBox" + this.data.leftItemId).value,
       end : document.getElementById("startBox" + this.data.rightItemId).value,

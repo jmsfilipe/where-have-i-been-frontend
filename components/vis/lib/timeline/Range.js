@@ -75,6 +75,7 @@ function Range(body, options, timelineDom, results) {
 
 
 
+
         var me = this;
         Hammer(lock, {
             preventDefault: true
@@ -415,15 +416,18 @@ Range.prototype._onDragStart = function(event) {
 };
 
 Range.prototype._onTap = function(event) {
-    if (this.options.results) {
+            this.tap = !this.tap;
+
+   /* if (this.options.results) {
         this.tap = !this.tap;
         if (this.tap) {
             this.timelineDom.background.style.background = "#EEEEEE";
+            this.
 
         } else {
             this.timelineDom.background.style.background = "white";
         }
-    }
+    }*/
 };
 
 /**

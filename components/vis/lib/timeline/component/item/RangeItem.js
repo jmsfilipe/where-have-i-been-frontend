@@ -44,7 +44,7 @@ function RangeItem(data, conversion, options) {
     this.f = 30;
 
 
-
+console.log(this.data.quartile)
 
 
 }
@@ -79,6 +79,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
         var location = document.createElement('div');
         location.className = "content-location-result"
         location.innerText = this.data.trip;
+        location.style.zIndex = '100';
 
         anchor.appendChild(location);
         this.dom.resultLocation = location;
@@ -112,16 +113,23 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
  */
 
 RangeItem.prototype._repaintStartBox = function(anchor) {
-    if (this.options.editable.remove && !this.dom.startBox) {
+    if (this.options.editable.remove && !this.dom.startBox ) {
         // create and show button
         var me = this;
 
         var startBox = document.createElement('div');
         var everything = document.getElementById("visualization");
         startBox.title = "Starting time";
+        if(!this.data.newSearch)
         startBox.innerHTML = '<div class="input-group clockpicker">' +
             '<input  id="startBox' + this.id + '" type="text" class="start-box form-control" value="--:--">' +
             '</div>';
+            else{
+                var start = moment(this.data.start).format("HH:mm");
+                 startBox.innerHTML = '<div class="input-group clockpicker">' +
+            '<input  id="startBox' + this.id + '" type="text" class="start-box form-control" value="' + start + '">' +
+            '</div>';
+            }
         anchor.appendChild(startBox);
         this.dom.startBox = startBox;
 
@@ -251,9 +259,17 @@ RangeItem.prototype._repaintEndBox = function(anchor) {
         var endBox = document.createElement('div');
         var everything = document.getElementById("visualization");
         endBox.title = "Ending time";
+        if(!this.data.newSearch)
         endBox.innerHTML = '<div class="input-group clockpicker">' +
             '<input  id="endBox' + this.id + '" type="text" class="end-box form-control" value="--:--">' +
             '</div>';
+            else{
+                                var end = moment(this.data.end).format("HH:mm");
+
+                endBox.innerHTML = '<div class="input-group clockpicker">' +
+            '<input  id="endBox' + this.id + '" type="text" class="end-box form-control" value="' + end + '">' +
+            '</div>';
+            }
         anchor.appendChild(endBox);
         this.dom.endBox = endBox;
 
@@ -404,7 +420,7 @@ RangeItem.prototype.getData = function() {
     var endBox = document.getElementById("endBox" + this.id);
 
     var data = {
-        location: this.dom.content.value,
+        location: this.dom.content.coords,
         start: startBox.value,
         end: endBox.value,
         spatialRange: this.dom.rangeBox.value,
@@ -616,23 +632,61 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
         content.type = 'text';
         content.title = 'Location name';
         content.className = 'content';
+        if(!this.data.newSearch){
         content.value = "local";
+        content.coords = "local";
+        }
+        else{
+            content.value = this.data.trip;
+            content.coords = this.data.trip;
+        }
 
 //console.log( this.parent.itemSet.locationNames)
         $(content).autocomplete({
-            lookup: util.locationNames
+            lookup: util.locationNames,
+            onSelect: function (suggestion) {
+        content.coords = suggestion.value;
+    }
         });
 
         Hammer(content, {
             preventDefault: true
         }).on('tap', function(event) {
             $(me.dom.durationBox).timepicker('hideWidget');
-            if (content.value === "local") content.value = "";
+            if (content.value === "local") {content.value = ""; content.coords = "";}
             content.focus();
+
+
+
+content.onfocus=function(){
+    var patt = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/g
+var res = patt.test(content.coords);
+if(res){
+
+
+    var event1 = new CustomEvent(
+  "showCoordinates", 
+  {
+    detail: {
+      message: content.coords
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+}
+};
+
 
         document.addEventListener("mapCoordinates", function(event) {
             coords = event.detail.message;
-            content.value = coords;
+            res = coords.split(",");
+
+            lat = Math.floor(res[0]*1000+0.5)/1000;
+            lon = Math.floor(res[1]*1000+0.5)/1000;
+
+            content.coords = coords;
+            content.value = lat + "," + lon;
         });
 
             event.stopPropagation();
@@ -651,7 +705,10 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
         });
 
         content.addEventListener("blur", function() {
-            if (content.value === "") content.value = "local";
+            if (content.value === "") {content.value = "local"; content.coords = "local";}
+            else{
+                content.coords = content.value;
+            }
         });
 
 
@@ -1202,6 +1259,7 @@ if(this.options.results){
 
     this._repaintContentBox(dom.box);
     this._repaintDeleteButton(dom.box);
+    
     this._repaintStartBox(dom.box);
     this._repaintDurationBox(dom.box);
     this._repaintEndBox(dom.box);
@@ -1291,14 +1349,13 @@ RangeItem.prototype.show = function() {
     if(this.options.results){
     var place = this.dom.resultLocation.innerText;
     color = util.placesColors[place];
-        if(this.data.colapsable){
-            var rgb = hexToRgb(color);
+        if(this.data.colapsable && color){
+            rgb = hexToRgb(color);
         this.dom.box.style.backgroundColor = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)";
     }
-else{
-    this.dom.box.style.backgroundColor = color;
-
-}
+    else{
+         this.dom.box.style.backgroundColor = color;
+    }
     }
 
 

@@ -3342,8 +3342,8 @@ function Map() {
 function initialize() {
 
     var mapProp = {
-        center: new google.maps.LatLng(0, 0),
-        zoom: 2,
+        center: new google.maps.LatLng(38.7902476,-9.2141835),
+        zoom: 10,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById("map"), mapProp);
@@ -3364,6 +3364,26 @@ icons = {
   }
 };
 
+document.addEventListener("showCoordinates", function(event) {
+
+coords = event.detail.message;
+res = coords.split(",");
+var position = new google.maps.LatLng(res[0], res[1]);
+map.panTo(position);
+
+              var iconBase = 'http://maps.google.com/mapfiles/ms/icons/';
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                icon: iconBase + 'red-dot.png'
+            });
+
+              setTimeout(function () {
+        marker.setMap(null);
+        delete marker;
+    }, 4000);
+
+});
 
 google.maps.event.addListener(map, "click", function (event) {
     var latitude = event.latLng.lat();
@@ -3459,6 +3479,7 @@ google.maps.event.trigger(map, 'resize');
 
 Map.prototype.highlightLocation = function(id) {
 
+if(markers[id]){
 for(var mKey in markers) {
       if(mKey === id){
         markers[mKey].icon = icons["selected"].icon;
@@ -3469,12 +3490,12 @@ for(var mKey in markers) {
     
 
 }
-  
+
 showMarkers();
 
 map.setZoom(17);
 map.panTo(markers[id].position);
-
+}
 }
 
 
@@ -3498,14 +3519,14 @@ Map.prototype.globalMapView = function(data) {
   var trips = data["trips"];
 
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }
   
 map.data.setStyle(unselectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features != null) {
         map.data.addGeoJson(trips[key]);
     }
 }
@@ -3529,7 +3550,7 @@ Map.prototype.mapView = function(data) {
 console.log(locations)
 console.log(trips)
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
         addMarker(key, locations[key]);
     }
 }
@@ -3732,6 +3753,7 @@ function Range(body, options, timelineDom, results) {
         var lock = document.createElement('div');
         lock.className = 'range-lock';
         this.body.dom.leftContainer.appendChild(lock);
+
 
 
 
@@ -4075,15 +4097,18 @@ Range.prototype._onDragStart = function(event) {
 };
 
 Range.prototype._onTap = function(event) {
-    if (this.options.results) {
+            this.tap = !this.tap;
+
+   /* if (this.options.results) {
         this.tap = !this.tap;
         if (this.tap) {
             this.timelineDom.background.style.background = "#EEEEEE";
+            this.
 
         } else {
             this.timelineDom.background.style.background = "white";
         }
-    }
+    }*/
 };
 
 /**
@@ -4507,6 +4532,22 @@ function Results() {
 
         me.sendLocationNamesRequest();
 
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
+};
+
+        vis.categoriesPlaces = new List('placesList', options);
+
+        vis.categoriesColors = new List('categoriesList', options);
+
+      //  vis.categoriesColors.remove("category", "Category");
+        //vis.categoriesColors.remove("color", "#eeeeee");
+        
+        //vis.categoriesPlaces.remove("category", "Category");
+        //vis.categoriesPlaces.remove("place", "Place");
+
+
 $('#importCategoryButton').on('click', function(e){ //hack to change the css style of the input file
         e.preventDefault()
         $("#importCategoryInput").trigger('click')
@@ -4577,13 +4618,11 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
                 break;
             case "settings result":
 
-     
+                console.log(obj.data);
                   updateSettings(obj.data);
-                  if(Object.keys(util.categoriesPlaces).length  == 0 || Object.keys(util.categoriesColors).length  == 0)
+                  if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
-                  else{
-                    updateTables();
-                  }
+        
   
                 break;
         }
@@ -4727,9 +4766,11 @@ Results.prototype.addColapsableResult = function(obj, size) {
             end: obj[i].end_date,
             trip: obj[i].id,
             colapsable: colapsable,
-            date: obj[i].date
+            date: obj[i].date,
+            quartile: obj[i].quartile
         });
     }
+    console.log(content)
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
 
@@ -4859,28 +4900,6 @@ function browserSupportFileUpload() {
 }
 
 
-var nrCategory = -1;
-var nrPlace = -1;
-var categories = [];
-
-
-
-function updateCategories() {
-    categories = [];
-    table = document.getElementById("categoriesTable");
-    rows = table.rows.length;
-
-        for (i = 0; i < rows; i++) {
-          category = document.getElementById("categoryName" + i);
-    categories.push( { "value": category.value, "data": "any" });
-
-
-    }
-
-
- return categories;
-
-}
 
 function uploadCategory(evt) {
     if (!browserSupportFileUpload()) {
@@ -4897,32 +4916,10 @@ function uploadCategory(evt) {
             if (data && data.length > 0) {
 
                 for (var i = 0; i < data.length; i++) {
-                    tr = document.createElement('tr');
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "150px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
-
-                    ++nrCategory;
-                    text.id = "categoryName" + nrCategory;
-
-                    text.setAttribute("value", data[i][0]);
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    td = document.createElement('td');
-                    color = document.createElement('input');
-                    color.style.border = "0";
-                    color.style.width = "55px";
-                    color.id = "categoryColor" + nrCategory;
-                    var myPicker = new jscolor.color(color, {});
-                    myPicker.fromString(data[i][1]);
-                    tr.appendChild(td);
-                    td.appendChild(color);
-
-                    table.appendChild(tr);
+                            vis.categoriesColors.add({
+  place: data[i][0],
+  category: data[i][1]
+});
                 }
 
 
@@ -4940,7 +4937,23 @@ function uploadCategory(evt) {
 
 Results.prototype.updateLocationSettings = function() {
 
+ for (i = 0; i < util.locationNames.length; i++) {
+        vis.categoriesPlaces.add({
+  place: util.locationNames[i].value,
+  category: "Category"
+});
+    }
 
+        vis.categoriesPlaces.items.forEach(function(key) {
+
+         vis.categoriesColors.items.forEach(function(key2){
+
+                if(key._values.category == key2._values.category)
+                util.placesColors[key._values.place] = key2._values.color;
+         });
+    });
+
+/*
     var table = document.getElementById("placesTable");
 
     for (i = 0; i < util.locationNames.length; i++) {
@@ -4963,6 +4976,7 @@ Results.prototype.updateLocationSettings = function() {
         $(text).autocomplete({
             lookup: util.locationNames
         });
+        text.className = "place";
         cell1.appendChild(text);
 
         text = document.createElement('input');
@@ -4972,6 +4986,7 @@ Results.prototype.updateLocationSettings = function() {
         text.style.color = "white";
         text.id = "placeCategoryName" + nrPlace;
         text.setAttribute("value","Category");
+        text.className = "category";
 
 
              $(text).autocomplete({
@@ -4990,12 +5005,12 @@ Results.prototype.updateLocationSettings = function() {
 
     }
 
-
+*/
 }
 
 
 function updateTables() {
-  nrPlace = -1;
+/*  nrPlace = -1;
   nrCategory = -1;
 
     var table = document.getElementById("placesTable");
@@ -5022,6 +5037,7 @@ function updateTables() {
         $(text).autocomplete({
             lookup: util.locationNames
         });
+        text.className = "place";
         cell1.appendChild(text);
 
         text = document.createElement('input');
@@ -5031,7 +5047,7 @@ function updateTables() {
         text.style.color = "white";
         text.id = "placeCategoryName" + nrPlace;
         text.setAttribute("value",entry);
-
+        text.className = "category";
 
              $(text).autocomplete({
                          lookup: function (query, done) {
@@ -5070,6 +5086,7 @@ function updateTables() {
         text.style.color = "white";
         text.id = "categoryName" + nrCategory;
         text.setAttribute("value",entry);
+        text.className = "category";
         $(text).autocomplete({
             lookup: util.locationNames
         });
@@ -5079,15 +5096,16 @@ function updateTables() {
         color.style.border = "0";
         color.style.width = "55px";
         color.id = "categoryColor" + nrCategory;
-        var myPicker = new jscolor.color(color, {});
-        myPicker.fromString(util.categoriesColors[entry]);
+        color.type = "color";
+        color.value = util.categoriesColors[entry];
+        color.className = "color";
 
         cell2.appendChild(color);
 
 
     }
   
-
+*/
 
 }
 
@@ -5106,45 +5124,12 @@ function uploadPlace(evt) {
             if (data && data.length > 0) {
 
                 for (var i = 0; i < data.length; i++) {
-                    tr = document.createElement('tr');
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "150px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
 
-                    ++nrPlace;
+        vis.categoriesPlaces.add({
+  place: data[i][0],
+  category: data[i][1]
+});
 
-                    text.id = "placeName" + nrPlace;
-
-                    text.setAttribute("value", data[i][0]);
-
-                    $(text).autocomplete({
-                        lookup: util.locationNames
-                    });
-
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    td = document.createElement('td');
-                    text = document.createElement('input');
-                    text.style.width = "60px";
-                    text.style.border = "0";
-                    text.style.background = "transparent";
-                    text.style.color = "white";
-
-                    text.id = "placeCategoryName" + nrPlace;
-
-                    text.setAttribute("value", data[i][1]);
-
-   
-                             
-
-                    tr.appendChild(td);
-                    td.appendChild(text);
-
-                    table.appendChild(tr);
                 }
 
 
@@ -5160,116 +5145,30 @@ function uploadPlace(evt) {
 }
 
 function newCategory() {
-    var table = document.getElementById("categoriesTable");
 
-    // Create an empty <tr> element and add it to the 1st position of the table:
-    var row = table.insertRow(0);
-
-    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    ++nrCategory;
-
-    text = document.createElement('input');
-    text.style.width = "150px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "categoryName" + nrCategory;
-    text.setAttribute("value","Category");
-    cell1.appendChild(text);
-
-
-
-    color = document.createElement('input');
-    color.style.border = "0";
-    color.style.width = "55px";
-    color.id = "categoryColor" + nrCategory;
-    var myPicker = new jscolor.color(color, {});
-    myPicker.fromString("#000000");
-    cell2.appendChild(color);
-
+    vis.categoriesColors.add({
+  category: "Category",
+  color: "#000000"
+});
 
 }
 
 
 function newPlace() {
-    var table = document.getElementById("placesTable");
-
-    // Create an empty <tr> element and add it to the 1st position of the table:
-    var row = table.insertRow(0);
-
-    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    ++nrPlace;
-
-    text = document.createElement('input');
-    text.style.width = "150px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "placeName" + nrPlace;
-    text.setAttribute("value", "Place");
-    $(text).autocomplete({
-        lookup: util.locationNames
-    });
-    cell1.appendChild(text);
-
-    text = document.createElement('input');
-    text.style.width = "60px";
-    text.style.border = "0";
-    text.style.background = "transparent";
-    text.style.color = "white";
-    text.id = "placeCategoryName" + nrPlace;
-    text.setAttribute("value", "Category");
-    cell2.appendChild(text);
- 
+        vis.categoriesPlaces.add({
+  place: "Place",
+  category: "Category"
+});
 
 }
 
 function exportCategory(evt) {
 
-    table = document.getElementById("categoriesTable");
-    $table = $(table);
-
-
-    var $rows = $table.find('tr:has(td)'),
-
-        // Temporary delimiter characters unlikely to be typed by keyboard
-        // This is to avoid accidentally splitting the actual contents
-        tmpColDelim = String.fromCharCode(11), // vertical tab character
-        tmpRowDelim = String.fromCharCode(0), // null character
-
-        // actual delimiter characters for CSV format
-        colDelim = '","',
-        rowDelim = '"\r\n"',
-
-        // Grab text from table into CSV formatted string
-        csv = '"' + $rows.map(function(i, row) {
-            var $row = $(row),
-                $cols = $row.find('td');
-
-            return $cols.map(function(j, col) {
-                if (j % 2 == 0) {
-                    category = document.getElementById("categoryName" + i);
-
-                    text = category.value;
-                } else {
-                    var $col = $(col),
-                        text = $col.html();
-                    html = $.parseHTML(text);
-                    color = $(html).css("background-color");
-                    text = colorToHex(color);
-                }
-                return text.replace(/"/g, '""'); // escape double quotes
-
-            }).get().join(tmpColDelim);
-
-        }).get().join(tmpRowDelim)
-        .split(tmpRowDelim).join(rowDelim)
-        .split(tmpColDelim).join(colDelim) + '"';
-
+    var items = vis.categoriesColors.items;
+    var csv = "";
+    items.forEach(function(item) {
+    csv += item._values.category + "," + item._values.color + "\n";
+  });
 
 
     window.location.href = 'data:application/csv;charset=UTF-8,' + encodeURIComponent(csv);
@@ -5279,44 +5178,11 @@ function exportCategory(evt) {
 
 function exportPlace(evt) {
 
-    table = document.getElementById("placesTable");
-    $table = $(table);
-
-
-    var $rows = $table.find('tr:has(td)'),
-
-        // Temporary delimiter characters unlikely to be typed by keyboard
-        // This is to avoid accidentally splitting the actual contents
-        tmpColDelim = String.fromCharCode(11), // vertical tab character
-        tmpRowDelim = String.fromCharCode(0), // null character
-
-        // actual delimiter characters for CSV format
-        colDelim = '","',
-        rowDelim = '"\r\n"',
-
-        // Grab text from table into CSV formatted string
-        csv = '"' + $rows.map(function(i, row) {
-            var $row = $(row),
-                $cols = $row.find('td');
-
-            return $cols.map(function(j, col) {
-                if (j % 2 == 0) {
-                    category = document.getElementById("placeName" + i);
-
-                    text = category.value;
-                } else {
-                    category = document.getElementById("placeCategoryName" + i);
-
-                    text = category.value;
-                }
-                return text.replace(/"/g, '""'); // escape double quotes
-
-            }).get().join(tmpColDelim);
-
-        }).get().join(tmpRowDelim)
-        .split(tmpRowDelim).join(rowDelim)
-        .split(tmpColDelim).join(colDelim) + '"';
-
+    var items = vis.categoriesPlaces.items;
+    var csv = "";
+    items.forEach(function(item) {
+    csv += item._values.place + "," + item._values.category + "\n";
+  });
 
 
     window.location.href = 'data:application/csv;charset=UTF-8,' + encodeURIComponent(csv);
@@ -5325,30 +5191,21 @@ function exportPlace(evt) {
 }
 
 
-function colorToHex(color) {
-    if (color.substr(0, 1) === '#') {
-        return color;
-    }
-    var digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(color);
+Results.prototype.saveSettings = function() {
+$('.ui.sidebar').sidebar('toggle');
 
-    var red = parseInt(digits[2]);
-    var green = parseInt(digits[3]);
-    var blue = parseInt(digits[4]);
-
-    var rgb = blue | (green << 8) | (red << 16);
-    return digits[1] + '#' + rgb.toString(16);
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
 };
 
 
+        vis.categoriesPlacesTemp = new List('placesList', options);
 
-Results.prototype.saveSettings = function() {
-
-
-util.categoriesColors = {};
-util.categoriesPlaces = {};
-$('.ui.sidebar').sidebar('toggle');
+        vis.categoriesColorsTemp = new List('categoriesList', options);
 
 
+/*
 for(i = 0; i<= nrCategory; i++){
   category = document.getElementById("categoryName" + i);
   category = category.value;
@@ -5384,16 +5241,38 @@ for(i = 0; i<= nrPlace; i++){
       }
 
     }
+*/
+    var colors = [];
+    var categories = [];
+
+    vis.categoriesColorsTemp.items.forEach(function(item) {
+    colors.push([item._values.category, item._values.color]);
+  });
+    vis.categoriesPlacesTemp.items.forEach(function(item) {
+    categories.push([item._values.place, item._values.category]);
+  });
+
+    this.saveToDatabase(colors, categories);
+    vis.categoriesPlaces = vis.categoriesPlacesTemp;
+    vis.categoriesColors = vis.categoriesColorsTemp;
 
 
-    this.saveToDatabase(util.categoriesColors, util.categoriesPlaces);
+    vis.categoriesPlaces.items.forEach(function(key) {
+
+         vis.categoriesColors.items.forEach(function(key2){
+
+                if(key._values.category == key2._values.category)
+                util.placesColors[key._values.place] = key2._values.color;
+         });
+    });
 
 
 };
 
 
 Results.prototype.saveToDatabase = function(colors, categories){
-
+    console.log(colors);
+    console.log(categories);
     var content = {
         colors: colors,
         categories: categories
@@ -5423,18 +5302,40 @@ Results.prototype.loadSettingsFromDatabase = function(){
 function updateSettings(data){
   var categories = data[0];
   var colors = data[1];
+console.log(categories);
+var options = {
+  valueNames: [ 'place', 'category', 'color']
+  
+};
 
-  util.categoriesPlaces = {};
-  util.categoriesColors = {};
+
+        vis.categoriesPlaces = new List('placesList', options);
+
+        vis.categoriesColors = new List('categoriesList', options);
+
+        vis.categoriesColors.remove("category", "Category");
+        vis.categoriesColors.remove("color", "#eeeeee");
+        
+        vis.categoriesPlaces.remove("category", "Category");
+        vis.categoriesPlaces.remove("place", "Place");
 
   for(i = 0; i < categories.length; i++){
-    util.categoriesPlaces[categories[i][0]] = categories[i][1];
+
+        vis.categoriesPlaces.add({
+  place: categories[i][0],
+  category: categories[i][1]
+});
+
   }
   for(i = 0; i < colors.length; i++){
-    util.categoriesColors[colors[i][0]] = colors[i][1];
+            vis.categoriesColors.add({
+  category: colors[i][0],
+  color: colors[i][1]
+});
+
   }
 
-    for (var key in util.categoriesPlaces){
+ /*   for (var key in util.categoriesPlaces){
 
       if (util.categoriesPlaces.hasOwnProperty(key)) {
               var places = util.categoriesPlaces[key];
@@ -5444,7 +5345,7 @@ function updateSettings(data){
         }
       }
 
-    }
+    }*/
 
 };
 
@@ -5453,11 +5354,34 @@ Results.prototype.clearEverything = function() {
 
 if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
+
+            var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+
 this.map.clearAll();
 this.itemSet.removeAllItems();
  }
 
 }
+
+Results.prototype.clearResults = function() {
+
+if(typeof this.itemSet != 'undefined'){
+$("#results").empty();
+
+            var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+
+this.map.clearAll();
+//this.itemSet.removeAllItems();
+ }
+
+}
+
 
 module.exports = Results;
 },{"../DataSet":2,"../DataView":3,"../module/hammer":6,"../util":31,"./Core":9,"./Map":11,"./Range":12,"./Timeline":16,"./component/CurrentTime":19,"./component/CustomTime":20,"./component/ItemSet":22,"./component/TimeAxis":23,"emitter-component":32}],14:[function(require,module,exports){
@@ -6338,6 +6262,29 @@ else{
   else {
     this._redraw();
   }
+
+   var me = this;
+
+          document.addEventListener("newSearch", function(event) {
+        	if(!me.options.results){
+        		        		console.log("GGGGG")
+        		        		console.log(data)
+
+        	data = event.detail.message;
+        	console.log(data)
+        	$("#results").empty();
+
+        	var iDiv = document.createElement('div');
+iDiv.id = 'message';
+$("#results").append(iDiv);
+
+			me.results.map.clearAll();
+			//me.itemSet.removeAllItems();
+        	me.setItems(data);
+
+        }
+        });
+
 }
 
 // Extend the functionality from Core
@@ -6350,7 +6297,12 @@ Timeline.prototype = new Core();
  */
 Timeline.prototype.redraw = function() {
   this.itemSet && this.itemSet.markDirty({refreshItems: true});
+
+
+
   this._redraw();
+
+
 };
 
 /**
@@ -7707,6 +7659,7 @@ module.exports = Group;
 	var IntervalItem = require('./item/IntervalItem');
 	var moment = require('../../module/moment');
 	var Results = require('../Results');
+	var stack = require('../Stack');
 
 	var UNGROUPED = '__ungrouped__'; // reserved group id for ungrouped items
 	var BACKGROUND = '__background__'; // reserved group id for background items without group
@@ -7721,8 +7674,9 @@ module.exports = Group;
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
+		this.tap = false;
 	    this.results = null;
-
+	    this.once = true;
 	    if (options instanceof Results) {
 	        this.results = options
 	    }
@@ -7834,6 +7788,10 @@ module.exports = Group;
 
 	    this.setOptions(options);
 
+
+
+
+
 	    this._create();
 
 
@@ -7882,6 +7840,7 @@ module.exports = Group;
 	    labelSet.className = 'labelset';
 	    this.dom.labelSet = labelSet;
 
+
 	    // create ungrouped Group
 	    this._updateUngrouped();
 
@@ -7913,8 +7872,73 @@ module.exports = Group;
 	    // add item on doubletap
 	    this.hammer.on('doubletap', this._onAddItem.bind(this));
 
+		var me = this;
+
+
+
 	    // attach to the DOM
 	    this.show();
+	};
+
+	ItemSet.prototype.useAsSearch = function() {
+		var items = [];
+
+		
+			var array = $.map(this.items, function(value, index) {
+    return [value]; //obj to array
+});
+			stack.orderByStart(array);
+
+	        for(i = 0; i< array.length; i++){
+	        	var leftItemId, rightItemId, leftIntervalId, rightIntervalId;
+
+	        	if(array[i].data.type == "range"){
+	        		if(i == 0 && array.length > 1)
+	        			rightIntervalId = array[i+1].data.id;
+	        		else if(i == array.length-1 && array.length > 1)
+	        			leftIntervalId = array[i-1].data.id;
+	        		else{
+	        			rightIntervalId = array[i+1].data.id;
+	        			leftIntervalId = array[i-1].data.id;
+	        		}
+	        	}
+	        	else if(array[i].data.type == "interval"){
+	        		leftItemId = array[i-1].data.id;
+	        		rightItemId = array[i+1].data.id;
+
+	        	}
+
+	        	items.push({
+		            id: array[i].data.id,
+		            type: array[i].data.type,
+		            content: array[i].data.id,
+		            trip: array[i].data.trip,
+		            start: array[i].data.start,
+		            end: array[i].data.end,
+		            date: array[i].data.date,
+		            colapsable: false,
+		            newSearch: true,
+		            leftItemId: leftItemId,
+		            rightItemId: rightItemId,
+		            leftIntervalId: leftIntervalId,
+		            rightIntervalId: rightIntervalId
+        		})
+
+	 	}
+
+	        var data = new vis.DataSet(items);
+
+    var event1 = new CustomEvent(
+  "newSearch", 
+  {
+    detail: {
+      message: data
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+
 	};
 
 	/**
@@ -8103,6 +8127,8 @@ module.exports = Group;
 	    if (!this.dom.labelSet.parentNode) {
 	        this.body.dom.left.appendChild(this.dom.labelSet);
 	    }
+
+
 	};
 
 	/**
@@ -8195,6 +8221,23 @@ module.exports = Group;
 	 * @return {boolean} Returns true if the component is resized
 	 */
 	ItemSet.prototype.redraw = function() {
+
+
+
+
+		if(this.once){
+			    if(this.options && this.options.results){
+        var resultUp = document.createElement('div');
+        resultUp.className = 'move-result-up';
+        this.body.dom.leftContainer.appendChild(resultUp);
+        var me = this;
+        resultUp.onclick=function(){me.useAsSearch();};
+
+    	}
+    	this.once = false;
+    }
+
+
 	    var margin = this.options.margin,
 	        range = this.body.range,
 	        asSize = util.option.asSize,
@@ -8265,12 +8308,22 @@ module.exports = Group;
 	    resized = this._isResized() || resized;
 
 
+
+
+
 	    if (this.options.results && !this.options.colapsed && this.options.moreResultsId != null && this.itemsData != null) {
 
+			var array = $.map(this.items, function(value, index) {
+    return [value]; //obj to array
+});
+			stack.orderByStart(array);
+
+
 	        var prevName = "";
-	        for (itemId in this.items) {
-	            if (this.items.hasOwnProperty(itemId)) {
-	                item = this.items[itemId];
+	        for(i = 0; i< array.length; i++){
+
+
+	                item = array[i];
 	                if (prevName!= item.data.trip) {
 	                	if(item.data.type != "interval")
 	                    item.dom.resultLocation.style.zIndex = '100'
@@ -8284,7 +8337,7 @@ module.exports = Group;
 	                //item.dom.box.style.borderLeft = 'none';
 	                //item.dom.box.style.borderRight = 'none';
 	                //
-	            }
+	            
 	        }
 
 	        //this.items[minStartItem.id].dom.box.style.borderLeft = "1px solid #97B0F8";
@@ -9325,7 +9378,36 @@ module.exports = Group;
 	 * @private
 	 */
 	ItemSet.prototype._onSelectItem = function(event) {
+
+		    if (this.options.results) {
+        this.tap = !this.tap;
+        if (this.tap) {
+            this.body.dom.background.style.background = "#EEEEEE";
+            	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "#EEEEEE";
+                         	item.dom.resultEndBox.style.background = "#EEEEEE";
+                         }
+	                    });
+
+
+
+        } else {
+            this.body.dom.background.style.background = "white";
+
+                        	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+        }
+    }
+
 	    if (!this.options.selectable) return;
+
 
 
 
@@ -9888,6 +9970,8 @@ module.exports = Group;
 	    result = result.slice(0, -1);
 	    //result += ']';
 
+	    console.log(result)
+
 	    var data = "\"data\": [" + result + "]}";
 
 	    return message.concat(data);
@@ -9970,7 +10054,7 @@ module.exports = Group;
 	};
 
 	module.exports = ItemSet;
-},{"../../DataSet":2,"../../DataView":3,"../../module/hammer":6,"../../module/moment":7,"../../util":31,"../Results":13,"../TimeStep":15,"./BackgroundGroup":17,"./Component":18,"./Group":21,"./item/BackgroundItem":24,"./item/BoxItem":25,"./item/IntervalItem":26,"./item/PointItem":28,"./item/RangeItem":29}],23:[function(require,module,exports){
+},{"../../DataSet":2,"../../DataView":3,"../../module/hammer":6,"../../module/moment":7,"../../util":31,"../Results":13,"../Stack":14,"../TimeStep":15,"./BackgroundGroup":17,"./Component":18,"./Group":21,"./item/BackgroundItem":24,"./item/BoxItem":25,"./item/IntervalItem":26,"./item/PointItem":28,"./item/RangeItem":29}],23:[function(require,module,exports){
 var util = require('../../util');
 var Component = require('./Component');
 var TimeStep = require('../TimeStep');
@@ -10135,6 +10219,7 @@ TimeAxis.prototype._create = function() {
 
             search.onclick = function() {
                 me.results.sendQueryData(me.itemSet.getData());
+                me.results.clearResults();
             };
             var clear = document.getElementById("clearButton");
 
@@ -10783,26 +10868,60 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     locationBox.className = 'location-box';
     locationBox.title = 'Route name';
     locationBox.value = 'route';
+    locationBox.coords = "route";
 
     $(locationBox).autocomplete({
-      lookup: this.parent.itemSet.availableTags
+      lookup: this.parent.itemSet.availableTags,
+      onSelect: function (suggestion) {
+        locationBox.coords = suggestion.value;
+    }
     });
 
     Hammer(locationBox, {
       preventDefault: true
     }).on('tap', function (event) {
                            $(me.dom.durationBox).timepicker('hideWidget');
+$(locationBox).bind('input', function() { 
+   locationBox.coords = locationBox.value;
+});
 
       locationBox.focus();
-      if(locationBox.value === "route") locationBox.value = "";
+      if(locationBox.value === "route") {locationBox.value = ""; locationBox.coords = "";};
 
         document.addEventListener("mapCoordinates", function(event) {
             coords = event.detail.message;
-            locationBox.value = coords;
+            res = coords.split(",");
+
+            lat = Math.floor(res[0]*1000+0.5)/1000;
+            lon = Math.floor(res[1]*1000+0.5)/1000;
+
+            locationBox.coords = coords;
+            locationBox.value = lat + "," + lon;
         });
 
       event.stopPropagation();
     });
+
+    locationBox.onfocus=function(){
+    var patt = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/g
+var res = patt.test(locationBox.coords);
+if(res){
+
+
+    var event1 = new CustomEvent(
+  "showCoordinates", 
+  {
+    detail: {
+      message: locationBox.coords
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+}
+};
+
+
     Hammer(everything, { //unfocus if clicked outside
       preventDefault: true
     }).on('tap', function (event) {
@@ -10816,7 +10935,7 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     });
 
                     locationBox.addEventListener("blur", function() {
-              if(locationBox.value === "") locationBox.value = "route";
+              if(locationBox.value === "") {locationBox.value = "route"; locationBox.coords = "route";}
         });
 
 
@@ -10996,7 +11115,7 @@ IntervalItem.prototype.isVisible = function(range) {
 
 IntervalItem.prototype.getData = function() {
   var data = {
-      route: this.dom.locationBox.value,
+      route: this.dom.locationBox.coords,
       duration: this.dom.durationBox.value,
       start : document.getElementById("endBox" + this.data.leftItemId).value,
       end : document.getElementById("startBox" + this.data.rightItemId).value,
@@ -11661,7 +11780,7 @@ function RangeItem(data, conversion, options) {
     this.f = 30;
 
 
-
+console.log(this.data.quartile)
 
 
 }
@@ -11696,6 +11815,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
         var location = document.createElement('div');
         location.className = "content-location-result"
         location.innerText = this.data.trip;
+        location.style.zIndex = '100';
 
         anchor.appendChild(location);
         this.dom.resultLocation = location;
@@ -11729,16 +11849,23 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
  */
 
 RangeItem.prototype._repaintStartBox = function(anchor) {
-    if (this.options.editable.remove && !this.dom.startBox) {
+    if (this.options.editable.remove && !this.dom.startBox ) {
         // create and show button
         var me = this;
 
         var startBox = document.createElement('div');
         var everything = document.getElementById("visualization");
         startBox.title = "Starting time";
+        if(!this.data.newSearch)
         startBox.innerHTML = '<div class="input-group clockpicker">' +
             '<input  id="startBox' + this.id + '" type="text" class="start-box form-control" value="--:--">' +
             '</div>';
+            else{
+                var start = moment(this.data.start).format("HH:mm");
+                 startBox.innerHTML = '<div class="input-group clockpicker">' +
+            '<input  id="startBox' + this.id + '" type="text" class="start-box form-control" value="' + start + '">' +
+            '</div>';
+            }
         anchor.appendChild(startBox);
         this.dom.startBox = startBox;
 
@@ -11868,9 +11995,17 @@ RangeItem.prototype._repaintEndBox = function(anchor) {
         var endBox = document.createElement('div');
         var everything = document.getElementById("visualization");
         endBox.title = "Ending time";
+        if(!this.data.newSearch)
         endBox.innerHTML = '<div class="input-group clockpicker">' +
             '<input  id="endBox' + this.id + '" type="text" class="end-box form-control" value="--:--">' +
             '</div>';
+            else{
+                                var end = moment(this.data.end).format("HH:mm");
+
+                endBox.innerHTML = '<div class="input-group clockpicker">' +
+            '<input  id="endBox' + this.id + '" type="text" class="end-box form-control" value="' + end + '">' +
+            '</div>';
+            }
         anchor.appendChild(endBox);
         this.dom.endBox = endBox;
 
@@ -12021,7 +12156,7 @@ RangeItem.prototype.getData = function() {
     var endBox = document.getElementById("endBox" + this.id);
 
     var data = {
-        location: this.dom.content.value,
+        location: this.dom.content.coords,
         start: startBox.value,
         end: endBox.value,
         spatialRange: this.dom.rangeBox.value,
@@ -12233,23 +12368,61 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
         content.type = 'text';
         content.title = 'Location name';
         content.className = 'content';
+        if(!this.data.newSearch){
         content.value = "local";
+        content.coords = "local";
+        }
+        else{
+            content.value = this.data.trip;
+            content.coords = this.data.trip;
+        }
 
 //console.log( this.parent.itemSet.locationNames)
         $(content).autocomplete({
-            lookup: util.locationNames
+            lookup: util.locationNames,
+            onSelect: function (suggestion) {
+        content.coords = suggestion.value;
+    }
         });
 
         Hammer(content, {
             preventDefault: true
         }).on('tap', function(event) {
             $(me.dom.durationBox).timepicker('hideWidget');
-            if (content.value === "local") content.value = "";
+            if (content.value === "local") {content.value = ""; content.coords = "";}
             content.focus();
+
+
+
+content.onfocus=function(){
+    var patt = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/g
+var res = patt.test(content.coords);
+if(res){
+
+
+    var event1 = new CustomEvent(
+  "showCoordinates", 
+  {
+    detail: {
+      message: content.coords
+    }
+  }
+);
+
+document.dispatchEvent(event1);
+}
+};
+
 
         document.addEventListener("mapCoordinates", function(event) {
             coords = event.detail.message;
-            content.value = coords;
+            res = coords.split(",");
+
+            lat = Math.floor(res[0]*1000+0.5)/1000;
+            lon = Math.floor(res[1]*1000+0.5)/1000;
+
+            content.coords = coords;
+            content.value = lat + "," + lon;
         });
 
             event.stopPropagation();
@@ -12268,7 +12441,10 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
         });
 
         content.addEventListener("blur", function() {
-            if (content.value === "") content.value = "local";
+            if (content.value === "") {content.value = "local"; content.coords = "local";}
+            else{
+                content.coords = content.value;
+            }
         });
 
 
@@ -12819,6 +12995,7 @@ if(this.options.results){
 
     this._repaintContentBox(dom.box);
     this._repaintDeleteButton(dom.box);
+    
     this._repaintStartBox(dom.box);
     this._repaintDurationBox(dom.box);
     this._repaintEndBox(dom.box);
@@ -12908,14 +13085,13 @@ RangeItem.prototype.show = function() {
     if(this.options.results){
     var place = this.dom.resultLocation.innerText;
     color = util.placesColors[place];
-        if(this.data.colapsable){
-            var rgb = hexToRgb(color);
+        if(this.data.colapsable && color){
+            rgb = hexToRgb(color);
         this.dom.box.style.backgroundColor = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)";
     }
-else{
-    this.dom.box.style.backgroundColor = color;
-
-}
+    else{
+         this.dom.box.style.backgroundColor = color;
+    }
     }
 
 
@@ -13316,9 +13492,15 @@ var moment = require('./module/moment');
  * @return {Boolean} isNumber
  */
 
+
+
+exports.categoriesPlaces = null;
+
+exports.categoriesColors = null;
+
 exports.locationNames = [];
-exports.categoriesPlaces = {};
-exports.categoriesColors = {};
+//exports.categoriesPlaces = {};
+//exports.categoriesColors = {};
 exports.placesColors = {};
 
 exports.isNumber = function(object) {

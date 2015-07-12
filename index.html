@@ -5,6 +5,7 @@
     <title>Timeline basic demo</title>
    <!-- <script src="components/vis/moment.min.js"></script>
     <script src="components/vis/moment-timezone-with-data.min.js"></script> -->
+    <script src="components/vis/js/list.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBCgAlVfAX_nvbOTqWf_tU3UTRXUCFMFcs"></script>
     <script src="components/vis/js/jquery-2.1.3.min.js"></script>
     <script src="components/vis/js/bootstrap.min.js"></script>
@@ -17,9 +18,9 @@
     <script src="components/vis/vis-custom.js"></script>
     <script src="components/vis/js/sidebar.js"></script>
     <script src="components/vis/js/jquery-ui.js"></script>
-    <script src="components/vis/js/jscolor.js"></script>
     
-    <link href="components/vis/css/vis.css" rel="stylesheet" type="text/css" />
+
+
     <link href="components/vis/css/bootstrap.css" rel="stylesheet">
     <link href="components/vis/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="components/vis/css/bootstrap-datepicker.min.css" rel="stylesheet">
@@ -30,6 +31,7 @@
     <link href="components/vis/css/map.css" rel="stylesheet">
     <link href="components/vis/css/sidebar.css" rel="stylesheet">
     <link href="components/vis/css/jquery-ui.css" rel="stylesheet">
+    <link href="components/vis/css/vis.css" rel="stylesheet" type="text/css" />
 
     <style type="text/css">
       body, html {
@@ -42,20 +44,46 @@
   
   <div id="settingsPanel">
   <h3>Categories</h3>
-  <table id ='categoriesTable'> </table>
+<div id="categoriesList">
+<input class="search" placeholder="Search" />
+  <button class="sort btn btn-xs" data-sort="category">
+    Sort by category
+  </button>
+  <br>
+  <table id ="categoriesTable"> <tbody class="list">
+
+      <tr>
+        <td><input style="box-shadow: none; height: 30px; width:200px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
+        <td><input style="width:50px" class="color" type="color" value="#EEEEEE"></td>
+      </tr>
+
+   </tbody> </table>
   <br>
   <button id='newCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">New</button>
   <input type="file" name="File Upload" id="importCategoryInput" accept=".csv" style="display:none"/>
   <button id='importCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Import</button>
   <button id='exportCategoryButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Export</button>
+</div>
   <br>
   <h3>Places</h3>
-  <table id ='placesTable'> </table>
+<div id="placesList">
+<input class="search" placeholder="Search" />
+  <button class="sort btn btn-xs" data-sort="place">
+    Sort by place
+  </button>
+  <br>
+  <table id ='placesTable'> <tbody class="list">
+      <tr>
+        <td><input style="box-shadow: none; width:180px; background: transparent; border: 0; padding: 0; color: white" class="place" type="text" value="Place"></td>
+        <td><input style="box-shadow: none; width:90px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
+      </tr>
+  </tbody> </table>
   <br>
   <button id='newPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">New</button>
   <input type="file" name="File Upload" id="importPlaceInput" accept=".csv" style="display:none"/>
   <button id='importPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Import</button>
   <button id='exportPlaceButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Export</button>
+</div>
   <br><br>
   <button id='saveButton' type="button" class="btn btn-xs btn-default" style="font-size:x-small">Save</button>
   </div>

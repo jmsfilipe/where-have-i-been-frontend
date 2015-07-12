@@ -41,19 +41,41 @@ color: white;
 }
 
 #categoriesTable{
- margin-left: auto;
-    margin-right: auto;
+ display: block;
+  height: 100px;
+  overflow-y: auto;
  border-collapse: separate;
-  border-spacing: 40px 0;
+  border-spacing: 10px 0;
 }
 
 #placesTable{
- margin-left: auto;
-    margin-right: auto;
+ display: block;
+  height: 200px;
+  overflow-y: auto;
  border-collapse: separate;
-  border-spacing: 40px 0;
+  border-spacing: 10px 0;
 }
 
 #settingsPanel{
   margin-left: 10px;
+}
+
+.color{
+
+}
+
+.category input[type=text]{
+  outline: 0;
+width: 150px;
+border: 0;
+background-color: transparent;
+color: white;
+}
+
+.place input[type=text]{
+  outline: 0;
+width: 150px;
+border: 0;
+background-color: transparent;
+color: white;
 }

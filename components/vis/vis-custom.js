@@ -4618,8 +4618,8 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
                 break;
             case "settings result":
 
-                console.log(obj.data);
                   updateSettings(obj.data);
+                  updateColors();
                   if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
         
@@ -4749,6 +4749,7 @@ Results.prototype.addColapsableResult = function(obj, size) {
     };
 
     var colapsable = true;
+    console.log(obj.length + "  " + size)
     if (obj.length == size) {
         options.colapsed = true;
         options.moreResultsId = null;
@@ -4770,7 +4771,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
             quartile: obj[i].quartile
         });
     }
-    console.log(content)
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
 
@@ -4797,6 +4797,7 @@ Results.prototype.addColapsedResult = function(obj) {
     var newItem = document.createElement("div");
 
     var list = document.getElementById("results");
+    console.log("ICIiIII " + obj[0].groupBy)
     var colapsedItem = document.getElementById(obj[0].groupBy);
 
     colapsedItem.parentNode.insertBefore(newItem, colapsedItem.nextSibling);
@@ -4934,6 +4935,18 @@ function uploadCategory(evt) {
     }
 }
 
+function updateColors(){
+
+            vis.categoriesPlaces.items.forEach(function(key) {
+
+         vis.categoriesColors.items.forEach(function(key2){
+
+                if(key._values.category == key2._values.category)
+                util.placesColors[key._values.place] = key2._values.color;
+         });
+    });
+
+}
 
 Results.prototype.updateLocationSettings = function() {
 
@@ -4944,14 +4957,7 @@ Results.prototype.updateLocationSettings = function() {
 });
     }
 
-        vis.categoriesPlaces.items.forEach(function(key) {
 
-         vis.categoriesColors.items.forEach(function(key2){
-
-                if(key._values.category == key2._values.category)
-                util.placesColors[key._values.place] = key2._values.color;
-         });
-    });
 
 /*
     var table = document.getElementById("placesTable");
@@ -5271,8 +5277,6 @@ for(i = 0; i<= nrPlace; i++){
 
 
 Results.prototype.saveToDatabase = function(colors, categories){
-    console.log(colors);
-    console.log(categories);
     var content = {
         colors: colors,
         categories: categories
@@ -5302,7 +5306,6 @@ Results.prototype.loadSettingsFromDatabase = function(){
 function updateSettings(data){
   var categories = data[0];
   var colors = data[1];
-console.log(categories);
 var options = {
   valueNames: [ 'place', 'category', 'color']
   
@@ -10256,6 +10259,11 @@ this.body.dom.rightContainer.style.textAlign = 'center';
     }else if(this.options.results && !this.options.colapsed){
       this.body.dom.leftContainer.style.width = "0px";
 
+        var moreIcon = document.createElement('div');
+        moreIcon.className = "show-more-icon";
+
+        this.body.dom.root.appendChild(moreIcon);
+
     }else if(this.options.results && this.options.colapsed && this.options.moreResultsId === null) {
         var dateDiv = document.createElement('div');
         dateDiv.className = "result-date";
@@ -11779,8 +11787,6 @@ function RangeItem(data, conversion, options) {
     Item.call(this, data, conversion, options);
     this.f = 30;
 
-
-console.log(this.data.quartile)
 
 
 }

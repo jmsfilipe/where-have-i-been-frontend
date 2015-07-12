@@ -901,6 +901,16 @@ font-size: small;
 text-align: center;
 }
 
+.show-more-icon{
+    background: url('../img/timeline/show_more.png') no-repeat top center;
+  position: absolute;
+  width: 30px;
+  height: 60px;
+  bottom: 0px;
+  left: 19px;
+
+}
+
 .vis.timeline .timeaxis.foreground {
   top: 0;
   left: 0;

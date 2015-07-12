@@ -199,6 +199,11 @@ this.body.dom.rightContainer.style.textAlign = 'center';
     }else if(this.options.results && !this.options.colapsed){
       this.body.dom.leftContainer.style.width = "0px";
 
+        var moreIcon = document.createElement('div');
+        moreIcon.className = "show-more-icon";
+
+        this.body.dom.root.appendChild(moreIcon);
+
     }else if(this.options.results && this.options.colapsed && this.options.moreResultsId === null) {
         var dateDiv = document.createElement('div');
         dateDiv.className = "result-date";

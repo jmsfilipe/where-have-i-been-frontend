@@ -44,8 +44,6 @@ function RangeItem(data, conversion, options) {
     this.f = 30;
 
 
-console.log(this.data.quartile)
-
 
 }
 

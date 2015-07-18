@@ -3455,6 +3455,7 @@ function showMarkers() {
 
 
 function addMarker(name, data){
+    if( data.features[0].geometry.coordinates[1] != 0 && data.features[0].geometry.coordinates[0] != 0){
     var yourLocation = new google.maps.LatLng(data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]);
 
             var marker = new google.maps.Marker({
@@ -3469,6 +3470,7 @@ function addMarker(name, data){
     if(markers.hasOwnProperty(key)) {
         bounds.extend(markers[key].getPosition());
     }
+}
 }
 
 }
@@ -3774,6 +3776,18 @@ function Range(body, options, timelineDom, results) {
         });
 
     }
+
+    var me = this;
+    document.addEventListener("toggle", function(event) {
+
+
+            me.tap = false;
+                        
+                     
+
+});
+
+
 }
 
 Range.prototype = new Component();
@@ -4097,6 +4111,8 @@ Range.prototype._onDragStart = function(event) {
 };
 
 Range.prototype._onTap = function(event) {
+
+
             this.tap = !this.tap;
 
    /* if (this.options.results) {
@@ -4521,7 +4537,6 @@ function Results() {
     var me = this;
     this.ws = new WebSocket("ws://localhost:8888/");
     this.itemSet;
-
     this.ws.onopen = function() {
       me.map = new Map();
 
@@ -4749,7 +4764,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
     };
 
     var colapsable = true;
-    console.log(obj.length + "  " + size)
     if (obj.length == size) {
         options.colapsed = true;
         options.moreResultsId = null;
@@ -4797,7 +4811,6 @@ Results.prototype.addColapsedResult = function(obj) {
     var newItem = document.createElement("div");
 
     var list = document.getElementById("results");
-    console.log("ICIiIII " + obj[0].groupBy)
     var colapsedItem = document.getElementById(obj[0].groupBy);
 
     colapsedItem.parentNode.insertBefore(newItem, colapsedItem.nextSibling);
@@ -7677,7 +7690,6 @@ module.exports = Group;
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
-		this.tap = false;
 	    this.results = null;
 	    this.once = true;
 	    if (options instanceof Results) {
@@ -7792,8 +7804,23 @@ module.exports = Group;
 	    this.setOptions(options);
 
 
+var me = this;
+document.addEventListener("toggle", function(event) {
 
 
+            me.body.dom.background.style.background = "white";
+
+
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+                        
+                     
+
+});
 
 	    this._create();
 
@@ -9383,8 +9410,33 @@ document.dispatchEvent(event1);
 	ItemSet.prototype._onSelectItem = function(event) {
 
 		    if (this.options.results) {
-        this.tap = !this.tap;
-        if (this.tap) {
+        
+console.log(this.body.dom.background.style.background)
+if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
+	this.body.dom.background.style.background = "white";
+            	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+                         return;
+}
+
+        var event1 = new CustomEvent(
+  "toggle", 
+  {
+  }
+);
+        var me = this;
+        document.dispatchEvent(event1);
+
+
+
+    	
+
+
             this.body.dom.background.style.background = "#EEEEEE";
             	var me = this;
                          util.forEach(me.items, function(item) {
@@ -9393,20 +9445,11 @@ document.dispatchEvent(event1);
                          	item.dom.resultEndBox.style.background = "#EEEEEE";
                          }
 	                    });
+ 
 
 
+                     
 
-        } else {
-            this.body.dom.background.style.background = "white";
-
-                        	var me = this;
-                         util.forEach(me.items, function(item) {
-                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
-                         	item.dom.resultStartBox.style.background = "white";
-                         	item.dom.resultEndBox.style.background = "white";
-                         }
-	                    });
-        }
     }
 
 	    if (!this.options.selectable) return;

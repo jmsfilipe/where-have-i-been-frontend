@@ -50,7 +50,6 @@ function Results() {
     var me = this;
     this.ws = new WebSocket("ws://localhost:8888/");
     this.itemSet;
-
     this.ws.onopen = function() {
       me.map = new Map();
 
@@ -278,7 +277,6 @@ Results.prototype.addColapsableResult = function(obj, size) {
     };
 
     var colapsable = true;
-    console.log(obj.length + "  " + size)
     if (obj.length == size) {
         options.colapsed = true;
         options.moreResultsId = null;
@@ -326,7 +324,6 @@ Results.prototype.addColapsedResult = function(obj) {
     var newItem = document.createElement("div");
 
     var list = document.getElementById("results");
-    console.log("ICIiIII " + obj[0].groupBy)
     var colapsedItem = document.getElementById(obj[0].groupBy);
 
     colapsedItem.parentNode.insertBefore(newItem, colapsedItem.nextSibling);

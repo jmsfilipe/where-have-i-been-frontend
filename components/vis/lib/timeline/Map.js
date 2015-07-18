@@ -147,6 +147,7 @@ function showMarkers() {
 
 
 function addMarker(name, data){
+    if( data.features[0].geometry.coordinates[1] != 0 && data.features[0].geometry.coordinates[0] != 0){
     var yourLocation = new google.maps.LatLng(data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]);
 
             var marker = new google.maps.Marker({
@@ -161,6 +162,7 @@ function addMarker(name, data){
     if(markers.hasOwnProperty(key)) {
         bounds.extend(markers[key].getPosition());
     }
+}
 }
 
 }

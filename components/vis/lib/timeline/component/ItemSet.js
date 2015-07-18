@@ -28,7 +28,6 @@
 	 * @extends Component
 	 */
 	function ItemSet(body, options) {
-		this.tap = false;
 	    this.results = null;
 	    this.once = true;
 	    if (options instanceof Results) {
@@ -143,8 +142,23 @@
 	    this.setOptions(options);
 
 
+var me = this;
+document.addEventListener("toggle", function(event) {
 
 
+            me.body.dom.background.style.background = "white";
+
+
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+                        
+                     
+
+});
 
 	    this._create();
 
@@ -1734,8 +1748,33 @@ document.dispatchEvent(event1);
 	ItemSet.prototype._onSelectItem = function(event) {
 
 		    if (this.options.results) {
-        this.tap = !this.tap;
-        if (this.tap) {
+        
+console.log(this.body.dom.background.style.background)
+if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
+	this.body.dom.background.style.background = "white";
+            	var me = this;
+                         util.forEach(me.items, function(item) {
+                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
+                         	item.dom.resultStartBox.style.background = "white";
+                         	item.dom.resultEndBox.style.background = "white";
+                         }
+	                    });
+                         return;
+}
+
+        var event1 = new CustomEvent(
+  "toggle", 
+  {
+  }
+);
+        var me = this;
+        document.dispatchEvent(event1);
+
+
+
+    	
+
+
             this.body.dom.background.style.background = "#EEEEEE";
             	var me = this;
                          util.forEach(me.items, function(item) {
@@ -1744,20 +1783,11 @@ document.dispatchEvent(event1);
                          	item.dom.resultEndBox.style.background = "#EEEEEE";
                          }
 	                    });
+ 
 
 
+                     
 
-        } else {
-            this.body.dom.background.style.background = "white";
-
-                        	var me = this;
-                         util.forEach(me.items, function(item) {
-                         	if(item.dom.resultStartBox && item.dom.resultEndBox){
-                         	item.dom.resultStartBox.style.background = "white";
-                         	item.dom.resultEndBox.style.background = "white";
-                         }
-	                    });
-        }
     }
 
 	    if (!this.options.selectable) return;

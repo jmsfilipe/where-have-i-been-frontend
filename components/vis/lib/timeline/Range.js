@@ -93,6 +93,18 @@ function Range(body, options, timelineDom, results) {
         });
 
     }
+
+    var me = this;
+    document.addEventListener("toggle", function(event) {
+
+
+            me.tap = false;
+                        
+                     
+
+});
+
+
 }
 
 Range.prototype = new Component();
@@ -416,6 +428,8 @@ Range.prototype._onDragStart = function(event) {
 };
 
 Range.prototype._onTap = function(event) {
+
+
             this.tap = !this.tap;
 
    /* if (this.options.results) {

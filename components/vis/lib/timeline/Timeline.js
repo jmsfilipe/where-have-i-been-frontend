@@ -107,7 +107,7 @@ else{
   this.itemSet = new ItemSet(this.body, this.results);
   this.components.push(this.itemSet);
   this.results.addSet(this.itemSet);
-
+  this.range.itemSet = this.itemSet;
 
   //timeaxis
   this.timeAxis = new TimeAxis(this.body, options, this.itemSet,this.results);

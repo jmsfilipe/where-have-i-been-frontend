@@ -1751,6 +1751,9 @@ document.dispatchEvent(event1);
         
 console.log(this.body.dom.background.style.background)
 if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
+	 this.results.hideResults(this.options.moreResultsId);
+	 this.expanded = false;
+
 	this.body.dom.background.style.background = "white";
             	var me = this;
                          util.forEach(me.items, function(item) {
@@ -1776,6 +1779,8 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 
 
             this.body.dom.background.style.background = "#EEEEEE";
+
+
             	var me = this;
                          util.forEach(me.items, function(item) {
                          	if(item.dom.resultStartBox && item.dom.resultEndBox){
@@ -1818,11 +1823,7 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 	        this.results.selectResult(this.options.moreResultsId, true);
 	        this.results.sendGlobalMapRequest(this.options.moreResultsId);
 	        console.log("FIRST")
-	    } else if (this.options.results && !this.options.colapsed && this.colapsableTap) {
-	        this.colapsableTap = !this.colapsableTap;
-	        this.results.unselectResult(this.options.moreResultsId, false);
-	        console.log("SECOND")
-
+	    
 	    } else if (this.options.results && this.options.colapsed && item == null) {
 	        this.colapsedTap = !this.colapsedTap;
 	        console.log("THIRD")

@@ -4265,11 +4265,31 @@ Range.prototype._onMouseWheel = function(event) {
             scale = 1 / (1 + (delta / 5));
         }
 
+        console.log(scale)
+
+     if(this.itemSet){
+            if(this.itemSet.itemsData.getDataSet().length >= 3){
+            for (var id in this.itemSet.items) {
+                    if (this.itemSet.items.hasOwnProperty(id)) {
+                        var _item = this.itemSet.items[id];
+                        if(_item.data.type === 'interval'){
+                            console.log(_item.dom.box.style.width)
+                            if(parseInt(_item.dom.box.style.width) < 180 && delta < 0){
+                                event.preventDefault();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // calculate center, the date to zoom around
         var gesture = hammerUtil.fakeGesture(this, event),
             pointer = getPointer(gesture.center, this.body.dom.center),
             pointerDate = this._pointerToDate(pointer);
 
+       
         //TODO
         //console.log("group by "+this.options)
         if (this.options.results) {
@@ -4295,6 +4315,8 @@ Range.prototype._onMouseWheel = function(event) {
 
         }
     }
+
+
 
     // Prevent default actions caused by mouse wheel
     // (else the page and timeline both zoom and scroll)
@@ -4555,6 +4577,7 @@ var options = {
         vis.categoriesPlaces = new List('placesList', options);
 
         vis.categoriesColors = new List('categoriesList', options);
+
 
       //  vis.categoriesColors.remove("category", "Category");
         //vis.categoriesColors.remove("color", "#eeeeee");
@@ -5335,6 +5358,11 @@ var options = {
         vis.categoriesPlaces.remove("category", "Category");
         vis.categoriesPlaces.remove("place", "Place");
 
+vis.categoriesColors.add({
+  category: "Category",
+  color: "#D5DDF6"
+});
+
   for(i = 0; i < categories.length; i++){
 
         vis.categoriesPlaces.add({
@@ -5344,6 +5372,7 @@ var options = {
 
   }
   for(i = 0; i < colors.length; i++){
+    if(colors[i][0] != 'Category' && colors[i][1] != '#D5DDF6')
             vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]
@@ -6241,7 +6270,7 @@ else{
   this.itemSet = new ItemSet(this.body, this.results);
   this.components.push(this.itemSet);
   this.results.addSet(this.itemSet);
-
+  this.range.itemSet = this.itemSet;
 
   //timeaxis
   this.timeAxis = new TimeAxis(this.body, options, this.itemSet,this.results);
@@ -9413,6 +9442,9 @@ document.dispatchEvent(event1);
         
 console.log(this.body.dom.background.style.background)
 if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
+	 this.results.hideResults(this.options.moreResultsId);
+	 this.expanded = false;
+
 	this.body.dom.background.style.background = "white";
             	var me = this;
                          util.forEach(me.items, function(item) {
@@ -9438,6 +9470,8 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 
 
             this.body.dom.background.style.background = "#EEEEEE";
+
+
             	var me = this;
                          util.forEach(me.items, function(item) {
                          	if(item.dom.resultStartBox && item.dom.resultEndBox){
@@ -9480,11 +9514,7 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 	        this.results.selectResult(this.options.moreResultsId, true);
 	        this.results.sendGlobalMapRequest(this.options.moreResultsId);
 	        console.log("FIRST")
-	    } else if (this.options.results && !this.options.colapsed && this.colapsableTap) {
-	        this.colapsableTap = !this.colapsableTap;
-	        this.results.unselectResult(this.options.moreResultsId, false);
-	        console.log("SECOND")
-
+	    
 	    } else if (this.options.results && this.options.colapsed && item == null) {
 	        this.colapsedTap = !this.colapsedTap;
 	        console.log("THIRD")

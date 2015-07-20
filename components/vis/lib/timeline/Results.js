@@ -69,6 +69,7 @@ var options = {
 
         vis.categoriesColors = new List('categoriesList', options);
 
+
       //  vis.categoriesColors.remove("category", "Category");
         //vis.categoriesColors.remove("color", "#eeeeee");
         
@@ -848,6 +849,11 @@ var options = {
         vis.categoriesPlaces.remove("category", "Category");
         vis.categoriesPlaces.remove("place", "Place");
 
+vis.categoriesColors.add({
+  category: "Category",
+  color: "#D5DDF6"
+});
+
   for(i = 0; i < categories.length; i++){
 
         vis.categoriesPlaces.add({
@@ -857,6 +863,7 @@ var options = {
 
   }
   for(i = 0; i < colors.length; i++){
+    if(colors[i][0] != 'Category' && colors[i][1] != '#D5DDF6')
             vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]

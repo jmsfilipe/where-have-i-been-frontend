@@ -582,11 +582,31 @@ Range.prototype._onMouseWheel = function(event) {
             scale = 1 / (1 + (delta / 5));
         }
 
+        console.log(scale)
+
+     if(this.itemSet){
+            if(this.itemSet.itemsData.getDataSet().length >= 3){
+            for (var id in this.itemSet.items) {
+                    if (this.itemSet.items.hasOwnProperty(id)) {
+                        var _item = this.itemSet.items[id];
+                        if(_item.data.type === 'interval'){
+                            console.log(_item.dom.box.style.width)
+                            if(parseInt(_item.dom.box.style.width) < 180 && delta < 0){
+                                event.preventDefault();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // calculate center, the date to zoom around
         var gesture = hammerUtil.fakeGesture(this, event),
             pointer = getPointer(gesture.center, this.body.dom.center),
             pointerDate = this._pointerToDate(pointer);
 
+       
         //TODO
         //console.log("group by "+this.options)
         if (this.options.results) {
@@ -612,6 +632,8 @@ Range.prototype._onMouseWheel = function(event) {
 
         }
     }
+
+
 
     // Prevent default actions caused by mouse wheel
     // (else the page and timeline both zoom and scroll)

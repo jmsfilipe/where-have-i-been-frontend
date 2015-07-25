@@ -79,3 +79,13 @@ border: 0;
 background-color: transparent;
 color: white;
 }
+
+#totalResults{
+  font-size: small;
+  color: #494949;
+  background: white;
+      position:absolute;
+      right: 5px;
+      margin-top: 2px;
+    z-index:10;
+}

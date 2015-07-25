@@ -1749,7 +1749,6 @@ document.dispatchEvent(event1);
 
 		    if (this.options.results) {
         
-console.log(this.body.dom.background.style.background)
 if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 	 this.results.hideResults(this.options.moreResultsId);
 	 this.expanded = false;
@@ -2354,8 +2353,6 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 
 	    result = result.slice(0, -1);
 	    //result += ']';
-
-	    console.log(result)
 
 	    var data = "\"data\": [" + result + "]}";
 

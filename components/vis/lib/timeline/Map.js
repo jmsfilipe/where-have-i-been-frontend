@@ -137,6 +137,12 @@ for(var key in markers) {
 }
 
 function clearMarkers() {
+  bounds = new google.maps.LatLngBounds();
+
+
+    
+
+
   setAllMap(null);
 }
 
@@ -155,6 +161,11 @@ function addMarker(name, data){
                 map: map,
                 icon: icons["unselected"].icon
             });
+            var iw = new google.maps.InfoWindow({
+       content: name
+     });
+     google.maps.event.addListener(marker, "click", function (e) { iw.open(map, this); });
+
             markers[name] = marker;
 
 
@@ -196,7 +207,7 @@ map.panTo(markers[id].position);
 Map.prototype.highlightRoute = function(id) {
 
 
-      console.log(map.data)
+     map.data.addGeoJson(trips[id]);
 
 }
 
@@ -212,20 +223,29 @@ Map.prototype.globalMapView = function(data) {
   var locations = data["locations"];
   var trips = data["trips"];
 
+
+
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features !== null) {
         addMarker(key, locations[key]);
     }
 }
-  
-map.data.setStyle(unselectedStyle);
+
+
+
+var noTrips = false;
+map.data.setStyle(selectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features !== null) {
         map.data.addGeoJson(trips[key]);
+    }
+    else{
+      noTrips = true;
     }
 }
 
-  if(Object.keys(trips).length == 0){
+
+  if(Object.keys(trips).length == 0 || noTrips){
   map.fitBounds(bounds);
   map.setCenter(bounds.getCenter());}
 else{
@@ -235,19 +255,33 @@ else{
 }
 
 Map.prototype.mapView = function(data) {
+        for(var mKey in markers) {
+
+        markers[mKey].icon = icons["unselected"].icon;
+      }
+      showMarkers();
+
+trips={};
+markers ={};
     clearMarkers();
     clearMap();
 
   var locations = data["locations"];
   var trips = data["trips"];
 
-console.log(locations)
-console.log(trips)
+
+var noMarkers = false;
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
+  console.log(locations)
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features[0].geometry.coordinates[0] != 0 && locations[key].features[0].geometry.coordinates[1] != 0 && locations[key].features[0].geometry.coordinates[2] != 0) {
+      console.log("impossible1")
         addMarker(key, locations[key]);
     }
+    else{
+      noMarkers = true;
+    }
 }
+
 
 for(var mKey in markers) {
     markers[mKey].icon = icons["unselected"].icon;
@@ -263,7 +297,9 @@ for(var mKey in markers) {
 var noTrips = false;
 map.data.setStyle(selectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features !== null) {
+            console.log("impossible2")
+
         map.data.addGeoJson(trips[key]);
     }
     else{
@@ -271,10 +307,18 @@ for(var key in trips) {
     }
 }
 
-  if(Object.keys(trips).length == 0 || noTrips){
+if(noMarkers && noTrips){
+  return;
+}
+  if(Object.keys(markers).length > 0 || !noMarkers){
+
+    console.log("KLOLL")
   map.fitBounds(bounds);
-  map.setCenter(bounds.getCenter());}
-else{
+  map.setCenter(bounds.getCenter());
+
+}
+else if (Object.keys(trips).length > 0 || !noTrips){
+  console.log("JLOL")
   zoom(map);
 }
 
@@ -342,13 +386,14 @@ Map.prototype.loadJson = function(geoString) {
 
 
 function clearMap() {
+  bounds = new google.maps.LatLngBounds();
     map.data.forEach(function(feature) {
        map.data.remove(feature);
     });
 }
 
 function zoom(map) {
-    var bounds = new google.maps.LatLngBounds();
+    bounds = new google.maps.LatLngBounds();
     map.data.forEach(function(feature) {
         processPoints(feature.getGeometry(), bounds.extend, bounds);
     });

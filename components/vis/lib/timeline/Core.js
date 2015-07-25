@@ -490,7 +490,6 @@ Core.prototype.fit = function(options) {
   }
 
   var animate = (options && options.animate !== undefined) ? options.animate : true;
-  console.log(range);
   this.range.setRange(range.start, range.end, animate);
 };
 

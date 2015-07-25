@@ -12,6 +12,9 @@ var ItemSet = require('./component/ItemSet');
 var Timeline = require('./Timeline');
 var Map = require('./Map');
 
+
+
+
 // Make the function wait until the connection is made...
 function waitForSocketConnection(socket, callback) {
     setTimeout(
@@ -42,6 +45,7 @@ Results.prototype.sendMessage = function(msg) {
 
 globalMapData = null;
 
+var totalResults;
 var firstTime = true;
 var firstTime2 = true;
 function Results() {
@@ -64,6 +68,12 @@ var options = {
   valueNames: [ 'place', 'category', 'color']
   
 };
+
+$('#results').bind('scroll', function(){
+   if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight){
+      me.addMoreColapsableResult();
+   }
+});
 
         vis.categoriesPlaces = new List('placesList', options);
 
@@ -117,6 +127,8 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
         switch (obj.message) {
             case "query colapsable results":
                 var size = obj.size
+                totalResults = "~ " + obj.total + " results";
+                $("#totalResults").text(totalResults);
                 me.addColapsableResult(obj.data, size);
                 break;
             case "query colapsed results":
@@ -259,7 +271,80 @@ Results.prototype.sendGlobalMapRequest = function(id) {
     this.sendMessage(msg);
 }
 
+totalShown = 10;
+Results.prototype.addMoreColapsableResult = function() {
+    rest = _obj.length - 10;
+    last = amount + 10;
+
+    if(last>rest)
+        last = totalShown + (rest-amount);
+       //console.log(last + "         " + rest + "      " + amount + "     "+ totalShown)
+
+
+
+        
+    for(j = amount; j < last; j++){
+        totalShown++;
+            if(totalShown > rest)
+        return;
+        var options = {
+            editable: false,
+            selectable: true,
+            showCurrentTime: false,
+            type: 'range',
+            stack: 'false',
+            results: true,
+            colapsed: false,
+            moreResultsId: _obj[j][0].moreResultsId,
+
+
+            margin: {
+                axis: 0,
+                item: 0
+            }
+        };
+
+        var colapsable = true;
+        if (_obj[j].length == _size) {
+            options.colapsed = true;
+            options.moreResultsId = null;
+            colapsable = false;
+        }
+
+        var container = document.getElementById('results');
+        var content = [];
+        for (i = 0; i < _obj[j].length; i++) {
+            content.push({
+                id: i,
+                type: _obj[j][i].type,
+                content: 'item ' + i,
+                start: _obj[j][i].start_date,
+                end: _obj[j][i].end_date,
+                trip: _obj[j][i].id,
+                colapsable: colapsable,
+                date: _obj[j][i].date,
+                quartile: _obj[j][i].quartile
+            });
+        }
+        var data = new vis.DataSet(content);
+        var timeline = new vis.Timeline(container, data, options);
+
+    }
+    amount = last;
+}
+
+var amount = 0;
+var _obj = [];
+var _size = 0;
 Results.prototype.addColapsableResult = function(obj, size) {
+
+
+    _obj.push(obj);
+    _size = size;
+
+    if(amount > 10)
+        return;
+
     var options = {
         editable: false,
         selectable: true,
@@ -301,7 +386,7 @@ Results.prototype.addColapsableResult = function(obj, size) {
     }
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
-
+    amount += 1;
 };
 
 colapsedResults = {};
@@ -892,9 +977,11 @@ if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
 
             var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
 iDiv.id = 'message';
+iDiv2.id = 'totalResults';
 $("#results").append(iDiv);
-
+$("#results").append(iDiv2);
 
 this.map.clearAll();
 this.itemSet.removeAllItems();
@@ -908,9 +995,11 @@ if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
 
             var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
 iDiv.id = 'message';
+iDiv2.id = 'totalResults';
 $("#results").append(iDiv);
-
+$("#results").append(iDiv2);
 
 this.map.clearAll();
 //this.itemSet.removeAllItems();

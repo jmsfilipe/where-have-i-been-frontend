@@ -2322,7 +2322,6 @@ Core.prototype.fit = function(options) {
   }
 
   var animate = (options && options.animate !== undefined) ? options.animate : true;
-  console.log(range);
   this.range.setRange(range.start, range.end, animate);
 };
 
@@ -3449,6 +3448,12 @@ for(var key in markers) {
 }
 
 function clearMarkers() {
+  bounds = new google.maps.LatLngBounds();
+
+
+    
+
+
   setAllMap(null);
 }
 
@@ -3467,6 +3472,11 @@ function addMarker(name, data){
                 map: map,
                 icon: icons["unselected"].icon
             });
+            var iw = new google.maps.InfoWindow({
+       content: name
+     });
+     google.maps.event.addListener(marker, "click", function (e) { iw.open(map, this); });
+
             markers[name] = marker;
 
 
@@ -3508,7 +3518,7 @@ map.panTo(markers[id].position);
 Map.prototype.highlightRoute = function(id) {
 
 
-      console.log(map.data)
+     map.data.addGeoJson(trips[id]);
 
 }
 
@@ -3524,20 +3534,29 @@ Map.prototype.globalMapView = function(data) {
   var locations = data["locations"];
   var trips = data["trips"];
 
+
+
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features !== null) {
         addMarker(key, locations[key]);
     }
 }
-  
-map.data.setStyle(unselectedStyle);
+
+
+
+var noTrips = false;
+map.data.setStyle(selectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features !== null) {
         map.data.addGeoJson(trips[key]);
+    }
+    else{
+      noTrips = true;
     }
 }
 
-  if(Object.keys(trips).length == 0){
+
+  if(Object.keys(trips).length == 0 || noTrips){
   map.fitBounds(bounds);
   map.setCenter(bounds.getCenter());}
 else{
@@ -3547,19 +3566,33 @@ else{
 }
 
 Map.prototype.mapView = function(data) {
+        for(var mKey in markers) {
+
+        markers[mKey].icon = icons["unselected"].icon;
+      }
+      showMarkers();
+
+trips={};
+markers ={};
     clearMarkers();
     clearMap();
 
   var locations = data["locations"];
   var trips = data["trips"];
 
-console.log(locations)
-console.log(trips)
+
+var noMarkers = false;
 for(var key in locations) {
-    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features != null) {
+  console.log(locations)
+    if(locations.hasOwnProperty(key) && locations[key] && locations[key].features[0].geometry.coordinates[0] != 0 && locations[key].features[0].geometry.coordinates[1] != 0 && locations[key].features[0].geometry.coordinates[2] != 0) {
+      console.log("impossible1")
         addMarker(key, locations[key]);
     }
+    else{
+      noMarkers = true;
+    }
 }
+
 
 for(var mKey in markers) {
     markers[mKey].icon = icons["unselected"].icon;
@@ -3575,7 +3608,9 @@ for(var mKey in markers) {
 var noTrips = false;
 map.data.setStyle(selectedStyle);
 for(var key in trips) {
-    if(trips.hasOwnProperty(key) && trips[key].features != null) {
+    if(trips.hasOwnProperty(key) && trips[key] && trips[key].features !== null) {
+            console.log("impossible2")
+
         map.data.addGeoJson(trips[key]);
     }
     else{
@@ -3583,10 +3618,18 @@ for(var key in trips) {
     }
 }
 
-  if(Object.keys(trips).length == 0 || noTrips){
+if(noMarkers && noTrips){
+  return;
+}
+  if(Object.keys(markers).length > 0 || !noMarkers){
+
+    console.log("KLOLL")
   map.fitBounds(bounds);
-  map.setCenter(bounds.getCenter());}
-else{
+  map.setCenter(bounds.getCenter());
+
+}
+else if (Object.keys(trips).length > 0 || !noTrips){
+  console.log("JLOL")
   zoom(map);
 }
 
@@ -3654,13 +3697,14 @@ Map.prototype.loadJson = function(geoString) {
 
 
 function clearMap() {
+  bounds = new google.maps.LatLngBounds();
     map.data.forEach(function(feature) {
        map.data.remove(feature);
     });
 }
 
 function zoom(map) {
-    var bounds = new google.maps.LatLngBounds();
+    bounds = new google.maps.LatLngBounds();
     map.data.forEach(function(feature) {
         processPoints(feature.getGeometry(), bounds.extend, bounds);
     });
@@ -4180,7 +4224,6 @@ Range.prototype._onDrag = function(event) {
         }*/
 
         if (this.locked){
-          console.log("draggin")
           this._applyRange(newStart, newEnd);
           if(this.options.groupBy != 'undefined')
             this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
@@ -4269,7 +4312,6 @@ Range.prototype._onMouseWheel = function(event) {
             scale = 1 / (1 + (delta / 5));
         }
 
-        console.log(scale)
 
      if(this.itemSet && !this.options.results){
             if(this.itemSet.itemsData.getDataSet().length >= 3){
@@ -4277,7 +4319,6 @@ Range.prototype._onMouseWheel = function(event) {
                     if (this.itemSet.items.hasOwnProperty(id)) {
                         var _item = this.itemSet.items[id];
                         if(_item.data.type === 'interval'){
-                            console.log(_item.dom.box.style.width)
                             if(parseInt(_item.dom.box.style.width) < 180 && delta < 0){
                                 event.preventDefault();
                                 return;
@@ -4525,6 +4566,9 @@ var ItemSet = require('./component/ItemSet');
 var Timeline = require('./Timeline');
 var Map = require('./Map');
 
+
+
+
 // Make the function wait until the connection is made...
 function waitForSocketConnection(socket, callback) {
     setTimeout(
@@ -4555,6 +4599,7 @@ Results.prototype.sendMessage = function(msg) {
 
 globalMapData = null;
 
+var totalResults;
 var firstTime = true;
 var firstTime2 = true;
 function Results() {
@@ -4577,6 +4622,12 @@ var options = {
   valueNames: [ 'place', 'category', 'color']
   
 };
+
+$('#results').bind('scroll', function(){
+   if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight){
+      me.addMoreColapsableResult();
+   }
+});
 
         vis.categoriesPlaces = new List('placesList', options);
 
@@ -4630,6 +4681,8 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
         switch (obj.message) {
             case "query colapsable results":
                 var size = obj.size
+                totalResults = "~ " + obj.total + " results";
+                $("#totalResults").text(totalResults);
                 me.addColapsableResult(obj.data, size);
                 break;
             case "query colapsed results":
@@ -4772,7 +4825,80 @@ Results.prototype.sendGlobalMapRequest = function(id) {
     this.sendMessage(msg);
 }
 
+totalShown = 10;
+Results.prototype.addMoreColapsableResult = function() {
+    rest = _obj.length - 10;
+    last = amount + 10;
+
+    if(last>rest)
+        last = totalShown + (rest-amount);
+       //console.log(last + "         " + rest + "      " + amount + "     "+ totalShown)
+
+
+
+        
+    for(j = amount; j < last; j++){
+        totalShown++;
+            if(totalShown > rest)
+        return;
+        var options = {
+            editable: false,
+            selectable: true,
+            showCurrentTime: false,
+            type: 'range',
+            stack: 'false',
+            results: true,
+            colapsed: false,
+            moreResultsId: _obj[j][0].moreResultsId,
+
+
+            margin: {
+                axis: 0,
+                item: 0
+            }
+        };
+
+        var colapsable = true;
+        if (_obj[j].length == _size) {
+            options.colapsed = true;
+            options.moreResultsId = null;
+            colapsable = false;
+        }
+
+        var container = document.getElementById('results');
+        var content = [];
+        for (i = 0; i < _obj[j].length; i++) {
+            content.push({
+                id: i,
+                type: _obj[j][i].type,
+                content: 'item ' + i,
+                start: _obj[j][i].start_date,
+                end: _obj[j][i].end_date,
+                trip: _obj[j][i].id,
+                colapsable: colapsable,
+                date: _obj[j][i].date,
+                quartile: _obj[j][i].quartile
+            });
+        }
+        var data = new vis.DataSet(content);
+        var timeline = new vis.Timeline(container, data, options);
+
+    }
+    amount = last;
+}
+
+var amount = 0;
+var _obj = [];
+var _size = 0;
 Results.prototype.addColapsableResult = function(obj, size) {
+
+
+    _obj.push(obj);
+    _size = size;
+
+    if(amount > 10)
+        return;
+
     var options = {
         editable: false,
         selectable: true,
@@ -4814,7 +4940,7 @@ Results.prototype.addColapsableResult = function(obj, size) {
     }
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
-
+    amount += 1;
 };
 
 colapsedResults = {};
@@ -5405,9 +5531,11 @@ if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
 
             var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
 iDiv.id = 'message';
+iDiv2.id = 'totalResults';
 $("#results").append(iDiv);
-
+$("#results").append(iDiv2);
 
 this.map.clearAll();
 this.itemSet.removeAllItems();
@@ -5421,9 +5549,11 @@ if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
 
             var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
 iDiv.id = 'message';
+iDiv2.id = 'totalResults';
 $("#results").append(iDiv);
-
+$("#results").append(iDiv2);
 
 this.map.clearAll();
 //this.itemSet.removeAllItems();
@@ -9444,7 +9574,6 @@ document.dispatchEvent(event1);
 
 		    if (this.options.results) {
         
-console.log(this.body.dom.background.style.background)
 if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 	 this.results.hideResults(this.options.moreResultsId);
 	 this.expanded = false;
@@ -10049,8 +10178,6 @@ if(this.body.dom.background.style.background === 'rgb(238, 238, 238)'){
 
 	    result = result.slice(0, -1);
 	    //result += ']';
-
-	    console.log(result)
 
 	    var data = "\"data\": [" + result + "]}";
 

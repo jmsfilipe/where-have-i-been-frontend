@@ -493,7 +493,6 @@ Range.prototype._onDrag = function(event) {
         }*/
 
         if (this.locked){
-          console.log("draggin")
           this._applyRange(newStart, newEnd);
           if(this.options.groupBy != 'undefined')
             this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
@@ -582,7 +581,6 @@ Range.prototype._onMouseWheel = function(event) {
             scale = 1 / (1 + (delta / 5));
         }
 
-        console.log(scale)
 
      if(this.itemSet && !this.options.results){
             if(this.itemSet.itemsData.getDataSet().length >= 3){
@@ -590,7 +588,6 @@ Range.prototype._onMouseWheel = function(event) {
                     if (this.itemSet.items.hasOwnProperty(id)) {
                         var _item = this.itemSet.items[id];
                         if(_item.data.type === 'interval'){
-                            console.log(_item.dom.box.style.width)
                             if(parseInt(_item.dom.box.style.width) < 180 && delta < 0){
                                 event.preventDefault();
                                 return;

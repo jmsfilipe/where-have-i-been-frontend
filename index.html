@@ -95,7 +95,10 @@
       <div id='settings'></div>
     </div>
     <div id="visualization"></div>
-    <div id='results'><div id='message'></div></div>
+    <div id='results'>
+      <div id='totalResults'></div>
+      <div id='message'></div>
+    </div>
     <div id='map'></div>
   </div>
 
@@ -141,7 +144,6 @@ today = dd+'/'+mm+'/'+yyyy;
 
   // Create a Timeline
   var timeline = new vis.Timeline(container, data, options);
-
 
     /*var timeline3 = new vis.Timeline(container2, data2, options2);
         var timeline4 = new vis.Timeline(container2, data2, options2);

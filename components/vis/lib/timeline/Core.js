@@ -481,12 +481,16 @@ Core.prototype.clear = function(what) {
 Core.prototype.fit = function(options) {
   var range = this._getDataRange();
 
+  range.start = moment().set("hour", 6).set("minute",0);
+  range.end = moment().set("hour", 22).set("minute",0);
+
   // skip range set if there is no start and end date
   if (range.start === null && range.end === null) {
     return;
   }
 
   var animate = (options && options.animate !== undefined) ? options.animate : true;
+  console.log(range);
   this.range.setRange(range.start, range.end, animate);
 };
 

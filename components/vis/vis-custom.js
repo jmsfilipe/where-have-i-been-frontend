@@ -2313,12 +2313,16 @@ Core.prototype.clear = function(what) {
 Core.prototype.fit = function(options) {
   var range = this._getDataRange();
 
+  range.start = moment().set("hour", 6).set("minute",0);
+  range.end = moment().set("hour", 22).set("minute",0);
+
   // skip range set if there is no start and end date
   if (range.start === null && range.end === null) {
     return;
   }
 
   var animate = (options && options.animate !== undefined) ? options.animate : true;
+  console.log(range);
   this.range.setRange(range.start, range.end, animate);
 };
 
@@ -4267,7 +4271,7 @@ Range.prototype._onMouseWheel = function(event) {
 
         console.log(scale)
 
-     if(this.itemSet){
+     if(this.itemSet && !this.options.results){
             if(this.itemSet.itemsData.getDataSet().length >= 3){
             for (var id in this.itemSet.items) {
                     if (this.itemSet.items.hasOwnProperty(id)) {
@@ -11878,6 +11882,7 @@ RangeItem.prototype._repaintResultStartBox = function(anchor) {
         startBox.className = "result-start"
         var hours = moment(this.data.start).format("HH:mm");
         startBox.innerHTML = hours;
+        startBox.title = hours;
 
         anchor.appendChild(startBox);
         this.dom.resultStartBox = startBox;
@@ -11895,7 +11900,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
         location.className = "content-location-result"
         location.innerText = this.data.trip;
         location.style.zIndex = '100';
-
+        location.title = this.data.trip;
         anchor.appendChild(location);
         this.dom.resultLocation = location;
 
@@ -11913,7 +11918,7 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
         endBox.className = "result-end"
         var hours = moment(this.data.end).format("HH:mm");
         endBox.innerHTML = hours;
-
+        endBox.title = hours;
         anchor.appendChild(endBox);
         this.dom.resultEndBox = endBox;
 

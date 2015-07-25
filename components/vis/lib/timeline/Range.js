@@ -584,7 +584,7 @@ Range.prototype._onMouseWheel = function(event) {
 
         console.log(scale)
 
-     if(this.itemSet){
+     if(this.itemSet && !this.options.results){
             if(this.itemSet.itemsData.getDataSet().length >= 3){
             for (var id in this.itemSet.items) {
                     if (this.itemSet.items.hasOwnProperty(id)) {

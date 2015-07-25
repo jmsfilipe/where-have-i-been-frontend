@@ -61,6 +61,7 @@ RangeItem.prototype._repaintResultStartBox = function(anchor) {
         startBox.className = "result-start"
         var hours = moment(this.data.start).format("HH:mm");
         startBox.innerHTML = hours;
+        startBox.title = hours;
 
         anchor.appendChild(startBox);
         this.dom.resultStartBox = startBox;
@@ -78,7 +79,7 @@ RangeItem.prototype._repaintResultLocation = function(anchor) {
         location.className = "content-location-result"
         location.innerText = this.data.trip;
         location.style.zIndex = '100';
-
+        location.title = this.data.trip;
         anchor.appendChild(location);
         this.dom.resultLocation = location;
 
@@ -96,7 +97,7 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
         endBox.className = "result-end"
         var hours = moment(this.data.end).format("HH:mm");
         endBox.innerHTML = hours;
-
+        endBox.title = hours;
         anchor.appendChild(endBox);
         this.dom.resultEndBox = endBox;
 

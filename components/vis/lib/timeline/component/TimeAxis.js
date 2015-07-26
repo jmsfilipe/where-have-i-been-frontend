@@ -177,7 +177,7 @@ TimeAxis.prototype._create = function() {
 this.body.dom.rightContainer.style.textAlign = 'center';
         var searchButton = document.createElement("button");
         searchButton.id = "searchButton";
-        searchButton.innerHTML = "Search";
+        searchButton.innerText = "Search";
         searchButton.className = "btn btn-default btn-sm";
         searchButton.style.top = '50%';
         searchButton.style.transform = 'translateY(-50%)';
@@ -188,7 +188,7 @@ this.body.dom.rightContainer.style.textAlign = 'center';
 
         var clearButton = document.createElement("button");
         clearButton.id = "clearButton";
-        clearButton.innerHTML = "Clear";
+        clearButton.innerText = "Clear";
         clearButton.className = "btn btn-default btn-xs";
         clearButton.style.top = '60%';
         clearButton.style.transform = 'translateY(-60%)';
@@ -262,7 +262,7 @@ settings.onclick=function(){$('.ui.sidebar').sidebar('toggle');};
         });
 
         var date = moment(first.data.date).format("DD/MM/YYYY");
-        this.body.dom.resultDate.innerHTML = date;
+        this.body.dom.resultDate.innerText = date;
     }
     var options = this.options;
     var props = this.props;

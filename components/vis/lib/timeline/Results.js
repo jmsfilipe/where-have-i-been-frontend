@@ -210,7 +210,7 @@ Results.prototype.showNoResults = function() {
 
     var message = document.getElementById("message");
     $("#message").show();
-    message.innerHTML = 'No results';
+    message.innerText = 'No results';
 
 };
 

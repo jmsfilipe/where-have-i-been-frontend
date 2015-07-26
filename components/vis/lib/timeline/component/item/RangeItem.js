@@ -60,7 +60,7 @@ RangeItem.prototype._repaintResultStartBox = function(anchor) {
         var everything = document.getElementById("visualization");
         startBox.className = "result-start"
         var hours = moment(this.data.start).format("HH:mm");
-        startBox.innerHTML = hours;
+        startBox.innerText = hours;
         startBox.title = hours;
 
         anchor.appendChild(startBox);
@@ -96,7 +96,7 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
         var everything = document.getElementById("visualization");
         endBox.className = "result-end"
         var hours = moment(this.data.end).format("HH:mm");
-        endBox.innerHTML = hours;
+        endBox.innerText = hours;
         endBox.title = hours;
         anchor.appendChild(endBox);
         this.dom.resultEndBox = endBox;

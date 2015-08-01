@@ -13,7 +13,7 @@ var Timeline = require('./Timeline');
 var Map = require('./Map');
 
 
-
+var _globalCategories = [];
 
 // Make the function wait until the connection is made...
 function waitForSocketConnection(socket, callback) {
@@ -74,6 +74,8 @@ $('#results').bind('scroll', function(){
       me.addMoreColapsableResult();
    }
 });
+
+
 
         vis.categoriesPlaces = new List('placesList', options);
 
@@ -163,7 +165,10 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
                   updateColors();
                   if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
-        
+                console.log(_globalCategories)
+        $('.category').autocomplete({
+            lookup:  _globalCategories,
+        });
   
                 break;
         }
@@ -329,13 +334,24 @@ Results.prototype.addMoreColapsableResult = function() {
         var data = new vis.DataSet(content);
         var timeline = new vis.Timeline(container, data, options);
 
+    if (allResults[_objCounter]) {
+        allResults[_objCounter].push(timeline);
+    } else {
+        allResults[_objCounter] = [];
+        allResults[_objCounter].push(timeline);
+    }
+    _objCounter++;
+    
     }
     amount = last;
+
+
 }
 
 var amount = 0;
 var _obj = [];
 var _size = 0;
+var _objCounter = 0;
 Results.prototype.addColapsableResult = function(obj, size) {
 
 
@@ -387,9 +403,18 @@ Results.prototype.addColapsableResult = function(obj, size) {
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
     amount += 1;
+
+    if (allResults[_objCounter]) {
+        allResults[_objCounter].push(timeline);
+    } else {
+        allResults[_objCounter] = [];
+        allResults[_objCounter].push(timeline);
+    }
+    _objCounter++;
 };
 
 colapsedResults = {};
+allResults = {};
 Results.prototype.addColapsedResult = function(obj) {
     var options = {
         editable: false,
@@ -476,6 +501,20 @@ Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delt
 
 };
 
+Results.prototype.zoomAllResults = function(scale, pointerDate, delta) {
+    for (var key in allResults) {
+            console.log(key);
+            var value = allResults[key];
+            for (i = 0; i < value.length; i++) {
+
+                value[i].range.zoom(scale, pointerDate, delta);
+            }
+        }
+
+
+
+};
+
 Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
     for (var key in colapsedResults) {
         if (parseInt(key) == parseInt(id)) {
@@ -499,6 +538,31 @@ Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
         }
 
     }
+
+};
+
+
+Results.prototype.dragAllResults = function(newStart, newEnd) {
+    for (var key in allResults) {
+            var value = allResults[key];
+            for (i = 0; i < value.length; i++) {
+                var datePartS = moment(newStart).format("YYYY MM DD ");
+                var datePartE = moment(newEnd).format("YYYY MM DD ");
+
+                var dayStart = moment(newStart).format("DD");
+                var dayEnd = moment(newEnd).format("DD");
+
+                var startPart = moment(newStart).format("HH mm");
+                var endPart = moment(newEnd).format("HH mm");
+
+                newStart = moment(datePartS + startPart, "YYYY MM DD HH mm");
+                newEnd = moment(datePartE + endPart, "YYYY MM DD HH mm");
+
+                value[i].range.setRange(newStart, newEnd);
+            }
+        
+}
+    
 
 };
 
@@ -862,9 +926,11 @@ for(i = 0; i<= nrPlace; i++){
 */
     var colors = [];
     var categories = [];
+    _globalCategories = [];
 
     vis.categoriesColorsTemp.items.forEach(function(item) {
     colors.push([item._values.category, item._values.color]);
+    _globalCategories.push(item._values.category);
   });
     vis.categoriesPlacesTemp.items.forEach(function(item) {
     categories.push([item._values.place, item._values.category]);
@@ -884,7 +950,10 @@ for(i = 0; i<= nrPlace; i++){
          });
     });
 
-
+            $('.category').autocomplete({
+            lookup:  _globalCategories,
+        });
+  
 };
 
 
@@ -918,6 +987,7 @@ Results.prototype.loadSettingsFromDatabase = function(){
 function updateSettings(data){
   var categories = data[0];
   var colors = data[1];
+
 var options = {
   valueNames: [ 'place', 'category', 'color']
   
@@ -953,7 +1023,7 @@ vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]
 });
-
+_globalCategories.push(colors[i][0]);
   }
 
  /*   for (var key in util.categoriesPlaces){

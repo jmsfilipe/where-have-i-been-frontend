@@ -2030,7 +2030,7 @@ else{
 Core.prototype.setOptions = function (options) {
   if (options) {
     // copy the known options
-    var fields = ['results', 'width', 'height', 'minHeight', 'maxHeight', 'autoResize', 'start', 'end', 'orientation', 'clickToUse', 'dataAttributes', 'hiddenDates'];
+    var fields = ['moreResultsId', 'results', 'width', 'height', 'minHeight', 'maxHeight', 'autoResize', 'start', 'end', 'orientation', 'clickToUse', 'dataAttributes', 'hiddenDates'];
     util.selectiveExtend(fields, this.options, options);
 
     if (this.options.orientation === 'both') {
@@ -4224,11 +4224,19 @@ Range.prototype._onDrag = function(event) {
         }*/
 
         if (this.locked){
-          this._applyRange(newStart, newEnd);
-          if(this.options.groupBy != 'undefined')
-            this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
-           if(this.options.moreResultsId != 'undefined')
+            console.log(this.options.groupBy + "  " + this.options.moreResultsId + "  " + this.itemSet.expanded)
+        if(this.options.moreResultsId !== undefined && this.itemSet.expanded){
+            this._applyRange(newStart, newEnd);
             this.results.dragEveryIdenticResult(this.options.moreResultsId, newStart, newEnd);
+           }
+           else if(this.options.groupBy !== undefined){
+            this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
+           }
+           
+              else{
+                this.results.dragAllResults(newStart, newEnd);
+             }
+              
         }
         else {
             this._applyRange(newStart, newEnd);
@@ -4344,11 +4352,18 @@ Range.prototype._onMouseWheel = function(event) {
             }*/
 
             if (this.locked){
-                this.zoom(scale, pointerDate, delta);
-                if(this.options.groupBy != 'undefined')
-                this.results.zoomEveryIdenticResult(this.options.groupBy, scale, pointerDate, delta);
-              if(this.options.moreResultsId != 'undefined')
-                 this.results.zoomEveryIdenticResult(this.options.moreResultsId, scale, pointerDate, delta);
+                 if(this.options.moreResultsId !== undefined && this.itemSet.expanded){
+                    this.zoom(scale, pointerDate, delta);
+                this.results.zoomEveryIdenticResult(this.options.moreResultsId, scale, pointerDate, delta);
+              }
+              else if(this.options.groupBy !== undefined){
+                 this.results.zoomEveryIdenticResult(this.options.groupBy, scale, pointerDate, delta);
+             
+              }else{
+              
+                this.results.zoomAllResults(scale, pointerDate, delta);
+            }
+            
 
               }
             else {
@@ -4567,7 +4582,7 @@ var Timeline = require('./Timeline');
 var Map = require('./Map');
 
 
-
+var _globalCategories = [];
 
 // Make the function wait until the connection is made...
 function waitForSocketConnection(socket, callback) {
@@ -4628,6 +4643,8 @@ $('#results').bind('scroll', function(){
       me.addMoreColapsableResult();
    }
 });
+
+
 
         vis.categoriesPlaces = new List('placesList', options);
 
@@ -4717,7 +4734,10 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
                   updateColors();
                   if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
-        
+                console.log(_globalCategories)
+        $('.category').autocomplete({
+            lookup:  _globalCategories,
+        });
   
                 break;
         }
@@ -4764,7 +4784,7 @@ Results.prototype.showNoResults = function() {
 
     var message = document.getElementById("message");
     $("#message").show();
-    message.innerHTML = 'No results';
+    message.innerText = 'No results';
 
 };
 
@@ -4883,13 +4903,24 @@ Results.prototype.addMoreColapsableResult = function() {
         var data = new vis.DataSet(content);
         var timeline = new vis.Timeline(container, data, options);
 
+    if (allResults[_objCounter]) {
+        allResults[_objCounter].push(timeline);
+    } else {
+        allResults[_objCounter] = [];
+        allResults[_objCounter].push(timeline);
+    }
+    _objCounter++;
+    
     }
     amount = last;
+
+
 }
 
 var amount = 0;
 var _obj = [];
 var _size = 0;
+var _objCounter = 0;
 Results.prototype.addColapsableResult = function(obj, size) {
 
 
@@ -4941,9 +4972,18 @@ Results.prototype.addColapsableResult = function(obj, size) {
     var data = new vis.DataSet(content);
     var timeline = new vis.Timeline(container, data, options);
     amount += 1;
+
+    if (allResults[_objCounter]) {
+        allResults[_objCounter].push(timeline);
+    } else {
+        allResults[_objCounter] = [];
+        allResults[_objCounter].push(timeline);
+    }
+    _objCounter++;
 };
 
 colapsedResults = {};
+allResults = {};
 Results.prototype.addColapsedResult = function(obj) {
     var options = {
         editable: false,
@@ -5030,6 +5070,20 @@ Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delt
 
 };
 
+Results.prototype.zoomAllResults = function(scale, pointerDate, delta) {
+    for (var key in allResults) {
+            console.log(key);
+            var value = allResults[key];
+            for (i = 0; i < value.length; i++) {
+
+                value[i].range.zoom(scale, pointerDate, delta);
+            }
+        }
+
+
+
+};
+
 Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
     for (var key in colapsedResults) {
         if (parseInt(key) == parseInt(id)) {
@@ -5053,6 +5107,31 @@ Results.prototype.dragEveryIdenticResult = function(id, newStart, newEnd) {
         }
 
     }
+
+};
+
+
+Results.prototype.dragAllResults = function(newStart, newEnd) {
+    for (var key in allResults) {
+            var value = allResults[key];
+            for (i = 0; i < value.length; i++) {
+                var datePartS = moment(newStart).format("YYYY MM DD ");
+                var datePartE = moment(newEnd).format("YYYY MM DD ");
+
+                var dayStart = moment(newStart).format("DD");
+                var dayEnd = moment(newEnd).format("DD");
+
+                var startPart = moment(newStart).format("HH mm");
+                var endPart = moment(newEnd).format("HH mm");
+
+                newStart = moment(datePartS + startPart, "YYYY MM DD HH mm");
+                newEnd = moment(datePartE + endPart, "YYYY MM DD HH mm");
+
+                value[i].range.setRange(newStart, newEnd);
+            }
+        
+}
+    
 
 };
 
@@ -5416,9 +5495,11 @@ for(i = 0; i<= nrPlace; i++){
 */
     var colors = [];
     var categories = [];
+    _globalCategories = [];
 
     vis.categoriesColorsTemp.items.forEach(function(item) {
     colors.push([item._values.category, item._values.color]);
+    _globalCategories.push(item._values.category);
   });
     vis.categoriesPlacesTemp.items.forEach(function(item) {
     categories.push([item._values.place, item._values.category]);
@@ -5438,7 +5519,10 @@ for(i = 0; i<= nrPlace; i++){
          });
     });
 
-
+            $('.category').autocomplete({
+            lookup:  _globalCategories,
+        });
+  
 };
 
 
@@ -5472,6 +5556,7 @@ Results.prototype.loadSettingsFromDatabase = function(){
 function updateSettings(data){
   var categories = data[0];
   var colors = data[1];
+
 var options = {
   valueNames: [ 'place', 'category', 'color']
   
@@ -5507,7 +5592,7 @@ vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]
 });
-
+_globalCategories.push(colors[i][0]);
   }
 
  /*   for (var key in util.categoriesPlaces){
@@ -10441,7 +10526,7 @@ TimeAxis.prototype._create = function() {
 this.body.dom.rightContainer.style.textAlign = 'center';
         var searchButton = document.createElement("button");
         searchButton.id = "searchButton";
-        searchButton.innerHTML = "Search";
+        searchButton.innerText = "Search";
         searchButton.className = "btn btn-default btn-sm";
         searchButton.style.top = '50%';
         searchButton.style.transform = 'translateY(-50%)';
@@ -10452,7 +10537,7 @@ this.body.dom.rightContainer.style.textAlign = 'center';
 
         var clearButton = document.createElement("button");
         clearButton.id = "clearButton";
-        clearButton.innerHTML = "Clear";
+        clearButton.innerText = "Clear";
         clearButton.className = "btn btn-default btn-xs";
         clearButton.style.top = '60%';
         clearButton.style.transform = 'translateY(-60%)';
@@ -10526,7 +10611,7 @@ settings.onclick=function(){$('.ui.sidebar').sidebar('toggle');};
         });
 
         var date = moment(first.data.date).format("DD/MM/YYYY");
-        this.body.dom.resultDate.innerHTML = date;
+        this.body.dom.resultDate.innerText = date;
     }
     var options = this.options;
     var props = this.props;
@@ -12008,7 +12093,7 @@ RangeItem.prototype._repaintResultStartBox = function(anchor) {
         var everything = document.getElementById("visualization");
         startBox.className = "result-start"
         var hours = moment(this.data.start).format("HH:mm");
-        startBox.innerHTML = hours;
+        startBox.innerText = hours;
         startBox.title = hours;
 
         anchor.appendChild(startBox);
@@ -12044,7 +12129,7 @@ RangeItem.prototype._repaintResultEndBox = function(anchor) {
         var everything = document.getElementById("visualization");
         endBox.className = "result-end"
         var hours = moment(this.data.end).format("HH:mm");
-        endBox.innerHTML = hours;
+        endBox.innerText = hours;
         endBox.title = hours;
         anchor.appendChild(endBox);
         this.dom.resultEndBox = endBox;

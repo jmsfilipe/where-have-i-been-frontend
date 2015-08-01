@@ -198,7 +198,7 @@ else{
 Core.prototype.setOptions = function (options) {
   if (options) {
     // copy the known options
-    var fields = ['results', 'width', 'height', 'minHeight', 'maxHeight', 'autoResize', 'start', 'end', 'orientation', 'clickToUse', 'dataAttributes', 'hiddenDates'];
+    var fields = ['moreResultsId', 'results', 'width', 'height', 'minHeight', 'maxHeight', 'autoResize', 'start', 'end', 'orientation', 'clickToUse', 'dataAttributes', 'hiddenDates'];
     util.selectiveExtend(fields, this.options, options);
 
     if (this.options.orientation === 'both') {

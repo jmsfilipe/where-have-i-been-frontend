@@ -493,11 +493,19 @@ Range.prototype._onDrag = function(event) {
         }*/
 
         if (this.locked){
-          this._applyRange(newStart, newEnd);
-          if(this.options.groupBy != 'undefined')
-            this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
-           if(this.options.moreResultsId != 'undefined')
+            console.log(this.options.groupBy + "  " + this.options.moreResultsId + "  " + this.itemSet.expanded)
+        if(this.options.moreResultsId !== undefined && this.itemSet.expanded){
+            this._applyRange(newStart, newEnd);
             this.results.dragEveryIdenticResult(this.options.moreResultsId, newStart, newEnd);
+           }
+           else if(this.options.groupBy !== undefined){
+            this.results.dragEveryIdenticResult(this.options.groupBy, newStart, newEnd);
+           }
+           
+              else{
+                this.results.dragAllResults(newStart, newEnd);
+             }
+              
         }
         else {
             this._applyRange(newStart, newEnd);
@@ -613,11 +621,18 @@ Range.prototype._onMouseWheel = function(event) {
             }*/
 
             if (this.locked){
-                this.zoom(scale, pointerDate, delta);
-                if(this.options.groupBy != 'undefined')
-                this.results.zoomEveryIdenticResult(this.options.groupBy, scale, pointerDate, delta);
-              if(this.options.moreResultsId != 'undefined')
-                 this.results.zoomEveryIdenticResult(this.options.moreResultsId, scale, pointerDate, delta);
+                 if(this.options.moreResultsId !== undefined && this.itemSet.expanded){
+                    this.zoom(scale, pointerDate, delta);
+                this.results.zoomEveryIdenticResult(this.options.moreResultsId, scale, pointerDate, delta);
+              }
+              else if(this.options.groupBy !== undefined){
+                 this.results.zoomEveryIdenticResult(this.options.groupBy, scale, pointerDate, delta);
+             
+              }else{
+              
+                this.results.zoomAllResults(scale, pointerDate, delta);
+            }
+            
 
               }
             else {

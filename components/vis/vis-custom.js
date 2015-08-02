@@ -4731,10 +4731,11 @@ $('#importPlaceButton').on('click', function(e){ //hack to change the css style 
             case "settings result":
 
                   updateSettings(obj.data);
-                  updateColors();
+                  
                   if(vis.categoriesPlaces.items.length  == 0 || vis.categoriesColors.items.length  == 0)
                     me.updateLocationSettings();
-                console.log(_globalCategories)
+                updateColors();
+
         $('.category').autocomplete({
             lookup:  _globalCategories,
         });
@@ -5072,7 +5073,6 @@ Results.prototype.zoomEveryIdenticResult = function(id, scale, pointerDate, delt
 
 Results.prototype.zoomAllResults = function(scale, pointerDate, delta) {
     for (var key in allResults) {
-            console.log(key);
             var value = allResults[key];
             for (i = 0; i < value.length; i++) {
 
@@ -5181,7 +5181,8 @@ function uploadCategory(evt) {
 }
 
 function updateColors(){
-
+console.log(vis.categoriesPlaces.items)
+console.log(vis.categoriesColors.items)
             vis.categoriesPlaces.items.forEach(function(key) {
 
          vis.categoriesColors.items.forEach(function(key2){
@@ -5612,6 +5613,13 @@ _globalCategories.push(colors[i][0]);
 
 Results.prototype.clearEverything = function() {
 
+amount = 0;
+_obj = [];
+_size = 0;
+_objCounter = 0;
+totalShown = 10;
+colapsedResults = {};
+allResults = {};
 if(typeof this.itemSet != 'undefined'){
 $("#results").empty();
 
@@ -12723,7 +12731,7 @@ document.dispatchEvent(event1);
             content.value = lat + "," + lon;
         });
 
-        
+
 };
 
 

@@ -687,7 +687,7 @@ document.dispatchEvent(event1);
             content.value = lat + "," + lon;
         });
 
-        
+
 };
 
 

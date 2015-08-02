@@ -77,16 +77,7 @@ $(locationBox).bind('input', function() {
       locationBox.focus();
       if(locationBox.value === "route") {locationBox.value = ""; locationBox.coords = "";};
 
-        document.addEventListener("mapCoordinates", function(event) {
-            coords = event.detail.message;
-            res = coords.split(",");
 
-            lat = Math.floor(res[0]*1000+0.5)/1000;
-            lon = Math.floor(res[1]*1000+0.5)/1000;
-
-            locationBox.coords = coords;
-            locationBox.value = lat + "," + lon;
-        });
 
       event.stopPropagation();
     });
@@ -108,6 +99,18 @@ if(res){
 
 document.dispatchEvent(event1);
 }
+
+        document.addEventListener("mapCoordinates", function(event) {
+            coords = event.detail.message;
+            res = coords.split(",");
+
+            lat = Math.floor(res[0]*1000+0.5)/1000;
+            lon = Math.floor(res[1]*1000+0.5)/1000;
+
+            locationBox.coords = coords;
+            locationBox.value = lat + "," + lon;
+        });
+        
 };
 
 

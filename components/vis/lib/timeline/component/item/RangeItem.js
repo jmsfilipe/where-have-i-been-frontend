@@ -674,7 +674,6 @@ if(res){
 
 document.dispatchEvent(event1);
 }
-};
 
 
         document.addEventListener("mapCoordinates", function(event) {
@@ -687,6 +686,10 @@ document.dispatchEvent(event1);
             content.coords = coords;
             content.value = lat + "," + lon;
         });
+
+        
+};
+
 
             event.stopPropagation();
         });

@@ -69,6 +69,8 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     Hammer(locationBox, {
       preventDefault: true
     }).on('tap', function (event) {
+      document.body.style.cursor = " url(components/vis/img/timeline/red-dot.png), auto";
+      locationBox.style.cursor = " url(components/vis/img/timeline/red-dot.png), auto";
                            $(me.dom.durationBox).timepicker('hideWidget');
 $(locationBox).bind('input', function() { 
    locationBox.coords = locationBox.value;
@@ -109,6 +111,10 @@ document.dispatchEvent(event1);
 
             locationBox.coords = coords;
             locationBox.value = lat + "," + lon;
+
+            document.body.style.cursor = "default";
+      locationBox.style.cursor = "default";
+
         });
         
 };

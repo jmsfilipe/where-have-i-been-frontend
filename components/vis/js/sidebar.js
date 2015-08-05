@@ -391,6 +391,7 @@ $.fn.sidebar = function(parameters) {
           else {
             module.debug('Sidebar is already visible');
           }
+          refreshCallbacks();
         },
 
         hide: function(callback) {
@@ -413,6 +414,13 @@ $.fn.sidebar = function(parameters) {
             settings.onChange.call(element);
             settings.onHide.call(element);
           }
+
+            vis.categoriesPlaces.search(); // Remove all filters
+            vis.categoriesColors.search(); // Remove all filters
+            $("#categoriesListSearch").val("");
+            $("#placesListSearch").val("");
+            refreshCallbacks();
+
         },
 
         othersAnimating: function() {
@@ -1087,3 +1095,27 @@ $.extend( $.easing, {
 
 
 })( jQuery, window , document );
+
+
+
+function refreshCallbacks() {
+    removeBtns = $('.remove-place-btn');
+  // Needed to add new buttons to jQuery-extended object
+  removeBtns = $(removeBtns.selector);
+  
+  removeBtns.click(function() {
+    var itemId = $(this).closest('tr').find('.place').val();
+    vis.categoriesPlaces.remove('place', itemId);
+  });
+
+
+      removeBtns1 = $('.remove-category-btn');
+  // Needed to add new buttons to jQuery-extended object
+  removeBtns1 = $(removeBtns1.selector);
+  
+  removeBtns1.click(function() {
+    var itemId1 = $(this).closest('tr').find('.category').val();
+    vis.categoriesColors.remove('category', itemId1);
+  });
+
+};

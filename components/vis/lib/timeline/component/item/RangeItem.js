@@ -447,7 +447,7 @@ RangeItem.prototype._repaintDurationBox = function(anchor) {
         var everything = document.getElementById("visualization");
         durationBox.type = 'text';
         //durationBox.setAttribute("maxlength", 5);
-        durationBox.className = 'duration-box';
+        durationBox.className = 'duration-box clearable';
         durationBox.title = 'Duration time';
         if(!this.data.drag)
         durationBox.value = 'duration';
@@ -654,6 +654,7 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
             $(me.dom.durationBox).timepicker('hideWidget');
             if (content.value === "local") {content.value = ""; content.coords = "";}
             content.focus();
+            content.select();
 
 
 
@@ -782,6 +783,8 @@ RangeItem.prototype._repaintFuzzyStart = function(anchor) {
             fuzzyIconBoxStart.style.display = 'block';
             fuzzyIconInterval.style.display = 'block';
             fuzzyIconBoxStart.value = "1min";
+            fuzzyIconBoxStart.focus();
+            fuzzyIconBoxStart.select();
             event.stopPropagation();
         });
 
@@ -1002,6 +1005,8 @@ RangeItem.prototype._repaintFuzzyEnd = function(anchor) {
             fuzzyIconBoxEnd.style.display = 'block';
             fuzzyIconInterval.style.display = 'block';
             fuzzyIconBoxEnd.value = "1min";
+            fuzzyIconBoxEnd.focus();
+            fuzzyIconBoxEnd.select();
             event.stopPropagation();
         });
 

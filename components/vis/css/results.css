@@ -89,3 +89,19 @@ color: white;
       margin-top: 2px;
     z-index:10;
 }
+
+.remove-category-btn{
+  margin-left: -5px;
+  width:16px;
+  height:16px;
+background: url('../img/timeline/remove.png') no-repeat top center;
+cursor: pointer;
+}
+
+.remove-place-btn{
+  margin-left: -10px;
+    width:16px;
+  height:16px;
+  background: url('../img/timeline/remove.png') no-repeat top center;
+  cursor: pointer;
+}

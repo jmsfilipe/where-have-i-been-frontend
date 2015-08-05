@@ -630,7 +630,7 @@ Results.prototype.updateLocationSettings = function() {
  for (i = 0; i < util.locationNames.length; i++) {
         vis.categoriesPlaces.add({
   place: util.locationNames[i].value,
-  category: "Category"
+  category: "All"
 });
     }
 
@@ -830,7 +830,7 @@ function uploadPlace(evt) {
 function newCategory() {
 
     vis.categoriesColors.add({
-  category: "Category",
+  category: "All",
   color: "#000000"
 });
 
@@ -840,7 +840,7 @@ function newCategory() {
 function newPlace() {
         vis.categoriesPlaces.add({
   place: "Place",
-  category: "Category"
+  category: "All"
 });
 
 }
@@ -999,14 +999,14 @@ var options = {
 
         vis.categoriesColors = new List('categoriesList', options);
 
-        vis.categoriesColors.remove("category", "Category");
+        vis.categoriesColors.remove("category", "All");
         vis.categoriesColors.remove("color", "#eeeeee");
         
-        vis.categoriesPlaces.remove("category", "Category");
+        vis.categoriesPlaces.remove("category", "All");
         vis.categoriesPlaces.remove("place", "Place");
 
 vis.categoriesColors.add({
-  category: "Category",
+  category: "All",
   color: "#D5DDF6"
 });
 
@@ -1019,7 +1019,7 @@ vis.categoriesColors.add({
 
   }
   for(i = 0; i < colors.length; i++){
-    if(colors[i][0] != 'Category' && colors[i][1] != '#D5DDF6')
+    if(colors[i][0] != 'All' && colors[i][1] != '#D5DDF6')
             vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]
@@ -1063,6 +1063,30 @@ $("#results").append(iDiv2);
 
 this.map.clearAll();
 this.itemSet.removeAllItems();
+ }
+
+}
+
+Results.prototype.clearEverythingButCurrentSearch = function() {
+
+amount = 0;
+_obj = [];
+_size = 0;
+_objCounter = 0;
+totalShown = 10;
+colapsedResults = {};
+allResults = {};
+if(typeof this.itemSet != 'undefined'){
+$("#results").empty();
+
+            var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
+iDiv.id = 'message';
+iDiv2.id = 'totalResults';
+$("#results").append(iDiv);
+$("#results").append(iDiv2);
+
+this.map.clearAll();
  }
 
 }

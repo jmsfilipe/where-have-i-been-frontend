@@ -45,7 +45,7 @@
   <div id="settingsPanel">
   <h3>Categories</h3>
 <div id="categoriesList">
-<input class="search" placeholder="Search" />
+<input id="categoriesListSearch" class="search" placeholder="Search" />
   <button class="sort btn btn-xs" data-sort="category">
     Sort by category
   </button>
@@ -53,8 +53,9 @@
   <table id ="categoriesTable"> <tbody class="list">
 
       <tr>
-        <td><input style="box-shadow: none; height: 30px; width:200px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
+        <td><input onclick="$(this).select();" style="box-shadow: none; height: 30px; width:200px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
         <td><input style="width:50px" class="color" type="color" value="#EEEEEE"></td>
+        <td class="removeCategory"><div class="remove-category-btn"></div></td>
       </tr>
 
    </tbody> </table>
@@ -67,15 +68,16 @@
   <br>
   <h3>Places</h3>
 <div id="placesList">
-<input class="search" placeholder="Search" />
+<input class="search" id="placesListSearch" placeholder="Search" />
   <button class="sort btn btn-xs" data-sort="place">
     Sort by place
   </button>
   <br>
   <table id ='placesTable'> <tbody class="list">
       <tr>
-        <td><input style="box-shadow: none; width:180px; background: transparent; border: 0; padding: 0; color: white" class="place" type="text" value="Place"></td>
-        <td><input style="box-shadow: none; width:90px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
+        <td><input onclick="$(this).select();" style="box-shadow: none; width:180px; background: transparent; border: 0; padding: 0; color: white" class="place" type="text" value="Place"></td> 
+        <td><input onclick="$(this).select();" style="box-shadow: none; width:90px; background: transparent; border: 0; padding: 0; color: white" class="category" type="text" value="Category"></td>
+        <td class="removePlace"><div class="remove-place-btn"></div></td>
       </tr>
   </tbody> </table>
   <br>

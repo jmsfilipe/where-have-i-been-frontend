@@ -5199,7 +5199,7 @@ Results.prototype.updateLocationSettings = function() {
  for (i = 0; i < util.locationNames.length; i++) {
         vis.categoriesPlaces.add({
   place: util.locationNames[i].value,
-  category: "Category"
+  category: "All"
 });
     }
 
@@ -5399,7 +5399,7 @@ function uploadPlace(evt) {
 function newCategory() {
 
     vis.categoriesColors.add({
-  category: "Category",
+  category: "All",
   color: "#000000"
 });
 
@@ -5409,7 +5409,7 @@ function newCategory() {
 function newPlace() {
         vis.categoriesPlaces.add({
   place: "Place",
-  category: "Category"
+  category: "All"
 });
 
 }
@@ -5568,14 +5568,14 @@ var options = {
 
         vis.categoriesColors = new List('categoriesList', options);
 
-        vis.categoriesColors.remove("category", "Category");
+        vis.categoriesColors.remove("category", "All");
         vis.categoriesColors.remove("color", "#eeeeee");
         
-        vis.categoriesPlaces.remove("category", "Category");
+        vis.categoriesPlaces.remove("category", "All");
         vis.categoriesPlaces.remove("place", "Place");
 
 vis.categoriesColors.add({
-  category: "Category",
+  category: "All",
   color: "#D5DDF6"
 });
 
@@ -5588,7 +5588,7 @@ vis.categoriesColors.add({
 
   }
   for(i = 0; i < colors.length; i++){
-    if(colors[i][0] != 'Category' && colors[i][1] != '#D5DDF6')
+    if(colors[i][0] != 'All' && colors[i][1] != '#D5DDF6')
             vis.categoriesColors.add({
   category: colors[i][0],
   color: colors[i][1]
@@ -5632,6 +5632,30 @@ $("#results").append(iDiv2);
 
 this.map.clearAll();
 this.itemSet.removeAllItems();
+ }
+
+}
+
+Results.prototype.clearEverythingButCurrentSearch = function() {
+
+amount = 0;
+_obj = [];
+_size = 0;
+_objCounter = 0;
+totalShown = 10;
+colapsedResults = {};
+allResults = {};
+if(typeof this.itemSet != 'undefined'){
+$("#results").empty();
+
+            var iDiv = document.createElement('div');
+            var iDiv2 = document.createElement('div');
+iDiv.id = 'message';
+iDiv2.id = 'totalResults';
+$("#results").append(iDiv);
+$("#results").append(iDiv2);
+
+this.map.clearAll();
  }
 
 }
@@ -10519,6 +10543,7 @@ TimeAxis.prototype._create = function() {
 
             search.onclick = function() {
                 me.results.sendQueryData(me.itemSet.getData());
+                me.results.clearEverythingButCurrentSearch();
                 me.results.clearResults();
             };
             var clear = document.getElementById("clearButton");
@@ -11185,6 +11210,8 @@ IntervalItem.prototype._repaintLocationBox = function (anchor) {
     Hammer(locationBox, {
       preventDefault: true
     }).on('tap', function (event) {
+      document.body.style.cursor = " url(components/vis/img/timeline/red-dot.png), auto";
+      locationBox.style.cursor = " url(components/vis/img/timeline/red-dot.png), auto";
                            $(me.dom.durationBox).timepicker('hideWidget');
 $(locationBox).bind('input', function() { 
    locationBox.coords = locationBox.value;
@@ -11225,6 +11252,10 @@ document.dispatchEvent(event1);
 
             locationBox.coords = coords;
             locationBox.value = lat + "," + lon;
+
+            document.body.style.cursor = "default";
+      locationBox.style.cursor = "default";
+
         });
         
 };
@@ -12491,7 +12522,7 @@ RangeItem.prototype._repaintDurationBox = function(anchor) {
         var everything = document.getElementById("visualization");
         durationBox.type = 'text';
         //durationBox.setAttribute("maxlength", 5);
-        durationBox.className = 'duration-box';
+        durationBox.className = 'duration-box clearable';
         durationBox.title = 'Duration time';
         if(!this.data.drag)
         durationBox.value = 'duration';
@@ -12698,6 +12729,7 @@ RangeItem.prototype._repaintContentBox = function(anchor) {
             $(me.dom.durationBox).timepicker('hideWidget');
             if (content.value === "local") {content.value = ""; content.coords = "";}
             content.focus();
+            content.select();
 
 
 
@@ -12826,6 +12858,8 @@ RangeItem.prototype._repaintFuzzyStart = function(anchor) {
             fuzzyIconBoxStart.style.display = 'block';
             fuzzyIconInterval.style.display = 'block';
             fuzzyIconBoxStart.value = "1min";
+            fuzzyIconBoxStart.focus();
+            fuzzyIconBoxStart.select();
             event.stopPropagation();
         });
 
@@ -13046,6 +13080,8 @@ RangeItem.prototype._repaintFuzzyEnd = function(anchor) {
             fuzzyIconBoxEnd.style.display = 'block';
             fuzzyIconInterval.style.display = 'block';
             fuzzyIconBoxEnd.value = "1min";
+            fuzzyIconBoxEnd.focus();
+            fuzzyIconBoxEnd.select();
             event.stopPropagation();
         });
 

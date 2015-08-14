@@ -11174,6 +11174,10 @@ function IntervalItem (data, conversion, options) {
   }
 
   Item.call(this, data, conversion, options);
+
+  if(this.options.results)
+    this.baseClassName = 'item interval results';
+
 }
 
 IntervalItem.prototype = new Item (null, null, null);

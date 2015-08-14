@@ -805,9 +805,22 @@ padding-right:5px;
   position: absolute;
   border-style: solid;
   border-color: #bfbfbf;
+  z-index: -1;
 
 }
 
+.vis.timeline .item.interval.results {
+  height: 0px;
+  background: transparent;
+  border-top: 0px none;
+  border-left: 0px none;
+  border-right: 0px none;
+  border-bottom: 5px solid;
+  position: absolute;
+  border-style: solid;
+  border-color: #bfbfbf;
+
+}
 
 
 .vis.timeline .item.interval .location-box {
